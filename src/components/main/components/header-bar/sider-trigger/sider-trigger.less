@@ -1,0 +1,37 @@
+.trans{
+  transition: transform .2s ease;
+}
+@size: 40px;
+.sider-trigger-a{
+  padding: 6px;
+  width: @size;
+  height: @size;
+  display: inline-block;
+  text-align: center;
+  color: #fff;
+  margin-top: 12px;
+  i{
+    .trans;
+    vertical-align: top;
+  }
+  &.collapsed i{
+    transform: rotateZ(90deg);
+    .trans;
+  }
+
+  display: block;
+  width: 35px!important;
+  height: 30px!important;
+  float: left;
+  color: #fff!important;
+  text-align: center;
+  line-height: 30px;
+  cursor: pointer;
+  margin: 7px 15px 5px 0px!important;
+  background: #056caf;
+  border-color: #056caf;
+  padding: 2px!important;
+}
+
+
+
