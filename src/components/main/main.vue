@@ -113,8 +113,8 @@ export default {
       'setSideCollapse'
     ]),
     ...mapActions([
-      'handleLogin',
-      'getUnreadMessageCount'
+      'handleLogin'
+      // 'getUnreadMessageCount'
     ]),
     turnToPage (route) {
       let { name, params, query } = {}

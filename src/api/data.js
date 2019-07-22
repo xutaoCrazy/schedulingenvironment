@@ -49,3 +49,10 @@ export const getTreeSelectData = () => {
     method: 'get'
   })
 }
+
+export const getShiftsList = () => {
+  return axios.request({
+    url: '/api/rateweb/cloud/SysSchedule/getShiftsList',
+    method: 'get'
+  })
+}

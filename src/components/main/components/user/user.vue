@@ -1,6 +1,6 @@
 <template>
   <div class="user-avatar-dropdown user-admin">
-    <div>
+    <div style='line-height: 44px;'>
        欢迎你：<span>管理员</span>
     </div>
   </div>

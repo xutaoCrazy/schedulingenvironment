@@ -98,9 +98,7 @@ export default {
         userId,
         userName
       }
-      saveErrorLogger(info).then(() => {
-        commit('addError', data)
-      })
+    
     }
   }
 }

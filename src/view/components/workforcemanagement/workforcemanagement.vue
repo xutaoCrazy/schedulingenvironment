@@ -4,7 +4,7 @@
       <Button type="primary" @click="demo">新增</Button>
     </Header>
       <Content>
-       <Table border highlight-row  :columns="columns1" :data="data1"></Table>
+       <Table border  :columns="columns1" :data="data1" class='tabel-padding'></Table>
       </Content>
       <Modal
         v-model="modal1"
@@ -15,67 +15,128 @@
         <p>Content of dialog</p>
         <p>Content of dialog</p>
     </Modal>
-  <div id='demo'>
+    <div id='workforcemange' style="display:none">
+      <Layout>
+        <Content class="workcontent">
+          <Form  label-position="left" :label-width="100">
+            <FormItem label="班次名称">
+                <Input></Input>
+            </FormItem>
+            <FormItem label="颜色">
+                <Input></Input>
+            </FormItem>
+            <FormItem label="开始时间">
+                <Input></Input>
+            </FormItem>
+            <FormItem label="结束时间">
+                <Input></Input>
+            </FormItem>
+          </Form>
+        </Content>
+        <Footer>
+            <Button type="primary" >保存</Button>
+            <Button style="margin-left: 8px">取消</Button>
+        </Footer>
+    </Layout>
+    </div>
   </div>
-  </div>
-
 </template>>
 <script>
 import './workforcemanagement.less'
-// import demo from './demo.vue'
+import { getShiftsList } from '@/api/data'
 export default {
   data () {
     return {
       columns1: [
         {
-          title: '序号',
+          title: '',
           type: 'index',
-          width: 60,
+          width: 40,
           align: 'center'
         },
         {
           title: '班次名称',
-          key: 'name',
-          align: 'center'
+          key: 'bco02',
+          align: 'center',
+          tooltip: true
+
         },
         {
           title: '颜色',
           key: 'age',
-          align: 'center'
+          align: 'center',
+          render: (h, params) => {
+            return h('div', {
+              'style': {
+                'background': '#fff',
+                'height': '30px'
+              }
+            }, params.row.age)
+          }
         },
         {
           title: '开始时间',
-          key: 'address',
-          align: 'center'
+          key: 'bco03',
+          align: 'center',
+          tooltip: true
+        },
+        {
+          title: '结束时间',
+          key: 'bco04',
+          align: 'center',
+          tooltip: true
+        },
+        {
+          title: '操作',
+          key: 'action',
+          width: 100,
+          align: 'center',
+          render: (h, params) => {
+            return h('div',
+              {
+                'style': {
+                  'textAlign': 'center'
+                }
+              },
+              [
+                h('img', {
+                  style: {
+                    marginRight: '5px',
+                    cursor: 'pointer'
+
+                  },
+                  attrs: {
+                    src: require('../../../assets/images/edit.png'),
+                    title: '编辑'
+                  },
+                  on: {
+                    click: () => {
+                      this.show(params.index)
+                    }
+                  }
+                }, '编辑'),
+                h('img', {
+                  style: {
+                    marginLeft: '10px',
+                    cursor: 'pointer'
+                  },
+                  attrs: {
+                    src: require('../../../assets/images/delte.png'),
+                    title: '删除'
+                  },
+                  on: {
+                    click: () => {
+                      this.remove(params.index)
+                    }
+                  }
+                }, 'Delete')
+              ])
+          }
         }
       ],
-      data1: [
-        {
-          name: 'John Brown',
-          age: 18,
-          address: 'New York No. 1 Lake Park',
-          date: '2016-10-03'
-        },
-        {
-          name: 'Jim Green',
-          age: 24,
-          address: 'London No. 1 Lake Park',
-          date: '2016-10-01'
-        },
-        {
-          name: 'Joe Black',
-          age: 30,
-          address: 'Sydney No. 1 Lake Park',
-          date: '2016-10-02'
-        },
-        {
-          name: 'Jon Snow',
-          age: 26,
-          address: 'Ottawa No. 2 Lake Park',
-          date: '2016-10-04'
-        }
-      ],
+      data1: [],
       modal1: false
+
     }
   },
   methods: {
@@ -93,13 +154,26 @@ export default {
         shade: true,
         area: ['530px', '450px'],
         maxmin: true, // 开启最大化最小化按钮
-        title: 'ceshi', // 界面设置
-        content: $('#demo'), // 捕获的元素
+        title: '新增', // 界面设置
+        content: $('#workforcemange'), // 捕获的元素
         success: function (index, num) {
 
         }
       })
+    },
+    show (index) {
+
+    },
+    remove (index) {
+
     }
+  },
+  mounted () {
+    getShiftsList().then(res => {
+      if (res.status === 200) {
+        this.data1 = res.data
+      }
+    })
   }
 }
 </script>
