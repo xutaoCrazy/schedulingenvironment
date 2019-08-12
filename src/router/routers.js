@@ -69,13 +69,13 @@ export default [
         component: () => import('@/view/components/workforcemanagement/workforcemanagement.vue')
       },
       {
-        path: 'count_to_page',
-        name: 'flightmanagement',
+        path: 'shifts-mangement',
+        name: 'shiftsmangement',
         meta: {
           icon: 'md-trending-up',
           title: '班次管理'
         },
-        component: () => import('@/view/components/count-to/count-to.vue')
+        component: () => import('@/view/components/management/shifts-mangement.vue')
       }
     ]
   },

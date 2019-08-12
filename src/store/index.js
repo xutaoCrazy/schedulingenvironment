@@ -9,7 +9,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     // 
-    sideCollapse: false,
+    sideCollapse: false
   },
   mutations: {
     //

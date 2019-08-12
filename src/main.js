@@ -9,6 +9,7 @@ import './my-theme/index.less'
 import i18n from '@/locale'
 import config from '@/config'
 import importDirective from '@/directive'
+import moment from 'moment'
 import { directive as clickOutside } from 'v-click-outside-x'
 import installPlugin from '@/plugin'
 import './index.less'
@@ -16,14 +17,19 @@ import '@/assets/icons/iconfont.css'
 import TreeTable from 'tree-table-vue'
 import VOrgTree from 'v-org-tree'
 import 'v-org-tree/dist/v-org-tree.css'
-import layer from 'layui-layer'
-Vue.prototype.$layer = layer
+Vue.prototype.$moment = moment;//赋值使用
+// moment.locale('zh-cn');//需要汉化
 // 实际打包时应该不引入mock
 /* eslint-disable */
 if (process.env.NODE_ENV !== 'production') require('@/mock')
 
 Vue.use(iView, {
   i18n: (key, value) => i18n.t(key, value)
+})
+
+Vue.filter('datafmt',function (input,fmtstring) {
+  // 使用momentjs这个日期格式化类库实现日期的格式化功能
+  return moment(input).format(fmtstring);
 })
 Vue.use(TreeTable)
 Vue.use(VOrgTree)
