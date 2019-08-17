@@ -41,7 +41,7 @@
      <div slot="footer">
            <Button type="primary" @click='save'  :loading="isBtnLoading" >保存</Button>
            <Button style="margin-left: 8px"  @click="cancel" >取消</Button>
-        </div>
+      </div>
     </Modal>
     <div v-show='closeModal' class='moodal-anim-works '>
       <div >
@@ -186,27 +186,35 @@ export default {
       this.formCustom[5].value = paramsArr.bco05
     },
     remove (params) {
-      debugger
-      this.$Modal.confirm({
-        title: '信息',
-        content: res.data.resultMsg
-      })
-
-      // this.promiseShifts('/api/rateweb/cloud/SysSchedule/removeShifts', 'post', { id: params.row.bco01 }).then((res) => {
-      //   if (res.data.result === 'SUCCESS') {
-      //     this.tabelGetList()
-      //     this.$Message.success({
-      //       content: '删除成功',
-      //       duration: 2
-      //     })
-      //     this.resetFieldsName()
-      //   } else {
-      //     this.$Modal.error({
-      //       title: '信息',
-      //       content: res.data.resultMsg
-      //     })
-      //   }
+      // debugger
+      // this.$Modal.confirm({
+      //   title: '信息',
+      //   content: res.data.resultMsg
       // })
+      this.$Modal.confirm({
+        title: '提示',
+        content: '确认删除当前班次吗？',
+        onOk: () => {
+          this.promiseShifts('/api/rateweb/cloud/SysSchedule/removeShifts', 'post', { id: params.row.bco01 }).then((res) => {
+            if (res.data.result === 'SUCCESS') {
+              this.tabelGetList()
+              this.$Message.success({
+                content: '删除成功',
+                duration: 2
+              })
+              this.resetFieldsName()
+            } else {
+              this.$Modal.error({
+                title: '信息',
+                content: res.data.resultMsg
+              })
+            }
+          })
+        },
+        onCancel: () => {
+          this.$Message.info('Clicked cancel')
+        }
+      })
     },
     close () { // 弹框最大化
       this.closes = !this.closes
@@ -262,7 +270,7 @@ export default {
     save () { // 保存
       debugger
       this.isBtnLoading = true
-      loadingShow('保存中')
+      // loadingShow('保存中')
       this.promiseShifts('/api/rateweb/cloud/SysSchedule/saveShifts', 'post', { commformStr: JSON.stringify(this.formCustom) }, true).then((res) => {
         if (res.data.result === 'SUCCESS') {
           this.resetFieldsName()
