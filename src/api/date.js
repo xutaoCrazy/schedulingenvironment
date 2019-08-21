@@ -192,7 +192,7 @@ export const calculatingDate = (type, data1, _this) => {
   return mangementArr
 }
 export const getDateStr = (dayCount, flag) => { // daycount 天数   flag  下周
-  if (null === dayCount || undefined === dayCount) {
+  if (dayCount === null || undefined === dayCount) {
     dayCount = 0
   }
   let weekJson = ['周天', '周一', '周二', '周三', '周四', '周五', '周六']
