@@ -36,35 +36,41 @@ export const calculatingDate = (type, data1, _this) => {
       break
     case 4:
       TimeJson.sartDate = getDateStr().year
-      TimeJson.endDate = getDateStr(7).year
-      nowDate = 7
+      TimeJson.endDate = getDateStr(6).year
+      nowDayOfWeek = 0
+      nowDate = 6
       width = 'auto'
       break
     case 5:
       TimeJson.sartDate = getDateStr().year
-      TimeJson.endDate = getDateStr(14).year
-      nowDate = 14
+      TimeJson.endDate = getDateStr(13).year
+      nowDayOfWeek = 0
+      nowDate = 13
       width = 'auto'
       break
     case 6:
       TimeJson.sartDate = getDateStr().year
-      TimeJson.endDate = getDateStr(30).year
-      nowDate = 30
+      TimeJson.endDate = getDateStr(29).year
+      nowDayOfWeek = 0
+      nowDate = 29
       width = '130'
       break
     case 7:
       TimeJson.sartDate = getDateStr().year
       TimeJson.endDate = getDateStr(60).year
+      nowDayOfWeek = 0
       nowDate = 60
       width = '130'
       break
     case 8:
       TimeJson.sartDate = getDateStr().year
       TimeJson.endDate = getDateStr(90).year
+      nowDayOfWeek = 0
       nowDate = 90
       width = '130'
       break
   }
+
   let mangementArr = [{
     title: '员工姓名',
     key: 'bce03',
@@ -106,8 +112,22 @@ export const calculatingDate = (type, data1, _this) => {
       ])
     }
   }]
-  let j = -1
+
   var $jsonTime = ''
+  let dateArr = {};
+  for (let k = 0; k < data1.length; k++) { //计算当前列 是否有排班
+    debugger;
+    dateArr[data1[k].bce03.split(',')[1]] = [];
+    let arrList = data1[k].list
+    for (let g = 0; g < arrList.length; g++) {
+      for (var key in arrList[g][0]) {
+        dateArr[data1[k].bce03.split(',')[1]].push(key);
+      }
+    }
+
+
+  }
+  let j = -1
   for (var i = nowDayOfWeek; i <= nowDate; i++) {
     j++
     if (type === 2) {
@@ -119,7 +139,7 @@ export const calculatingDate = (type, data1, _this) => {
     }
     let jsonTime = $jsonTime
     let indexItem = 0
-    let dateArr = []
+
     let mangementJson = {
       title: jsonTime.date + '(' + jsonTime.week + ')',
       key: 'list',
@@ -137,17 +157,12 @@ export const calculatingDate = (type, data1, _this) => {
               'height': '90px'
             }
           }, data1[params.index].list.map(item => {
-            let $timeFlag = true
-            if (item[0][jsonTime.time] != undefined) {
+            if (dateArr[params.row.bce03.split(',')[1]].indexOf(jsonTime.time) > -1) {
               indexItem = 0
               params.row.list.filter((item, index) => {
                 if (item[0] && Object.keys(item[0]).indexOf(jsonTime.time) > -1) {
                   debugger
                   indexItem++
-                  $timeFlag = false
-                }
-                for (var key in item[0]) {
-                  dateArr.push(key)
                 }
               })
               debugger
@@ -165,8 +180,28 @@ export const calculatingDate = (type, data1, _this) => {
                     _this.show(params, 2, jsonTime.year, jsonParams[2], jsonParams[3])
                   }
                 }
-              }, jsonParams[0])
-            } else if (dateArr.indexOf(jsonTime.time) === -1) {
+              }, [
+                h('img', {
+                  style: {
+                    marginRight: '5px',
+                    cursor: 'pointer',
+                    float: 'right',
+                    marginLeft: '5px',
+                    padding: '3px',
+                    background: '#fff'
+                  },
+                  attrs: {
+                    src: require('../assets/images/delete.png'),
+                    title: '删除'
+                  },
+                  on: {
+                    click: () => {
+                      _this.show(params, 1, TimeJson)
+                    }
+                  }
+                }, '删除')
+              ], jsonParams[0])
+            } else {
               return h('div', {
                 'style': {
                   'background': '',

@@ -146,7 +146,7 @@
             </FormItem>
 
             <FormItem label="日期" v-show="showDate">
-              <DatePicker type="date" placeholder="日期" v-model="sameday"></DatePicker>
+              <Input v-model="sameday" readonly />
             </FormItem>
             <FormItem label="时间">
               <Row>
@@ -426,6 +426,7 @@ export default {
       data6: [],
       data7: [],
       data8: [],
+      tabeNum: 0,
       docter: "",
       docterList: "",
       Department: "",
@@ -651,6 +652,7 @@ export default {
       this.handleTab(0);
     },
     show(params, flag, timeJson, zaa01, $color, $item) {
+      debugger;
       if (zaa01 && $color === "null") {
         this.showType = 4;
         this.promiseShifts(
@@ -730,7 +732,7 @@ export default {
               formData.zaa07 = $data.zaa07.split(" ")[1];
               formData.zaa08 = $data.zaa08.split(" ")[1];
               formData.bas02 = $data.bas02;
-              formData.bck03 = $data.bck03;
+              formData.bck03 = $data.bck01;
               formData.bcb01 = $data.bcb01;
               formData.zaa12 = $data.zaa12;
               formData.zaa11 = $data.zaa11;
@@ -741,6 +743,7 @@ export default {
               formData.bce01 = $data.bce01;
               formData.bce03 = $data.bce03;
               formData.bck01 = $data.bck01;
+              this.selectBck01($data.bck01, $data.bas02);
             }
           });
         }
@@ -866,11 +869,11 @@ export default {
         this.batchDat[0].zaa07 = item.bco03;
         this.batchDat[0].zaa08 = item.bco04;
       } else {
-        this.shiftformdata[this.tabindex].zaa07 = item.bco03;
-        this.shiftformdata[this.tabindex].zaa08 = item.bco04;
+        this.shiftformdata[this.tabeNum].zaa07 = item.bco03;
+        this.shiftformdata[this.tabeNum].zaa08 = item.bco04;
       }
     },
-    selectBck01(val) {
+    selectBck01(val, selcted) {
       // 选择科室 回填诊室
       this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
@@ -878,6 +881,9 @@ export default {
         debugger;
         if (res.status === 200) {
           this.bas02List = res.data;
+        }
+        if (selcted) {
+          this.shiftformdata[0].bas02 = selcted;
         }
       });
     },
@@ -979,6 +985,7 @@ export default {
       let now = new Date(); // 当前日期
       let nowDayOfWeek = now.getDay();
       this.tabindex = index + 1;
+      this.tabeNum = index;
       switch (index) {
         case 0:
           this.startDate = getDateStr(0).year + " " + "00:00:00";

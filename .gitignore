@@ -27,3 +27,7 @@ yarn-error.log*
 *.sw*
 
 build/env.js
+package-lock.json
+.eslintignore
+.eslintignore
+package.json
