@@ -219,15 +219,7 @@ export const calculatingDate = (type, data1, _this) => {
                     }, '诊室:'),
                     h('span', {
                       slot: 'content',
-                    }, jsonParams[0])
-                  ]),
-                  h('p', [
-                    h('span', {
-                      slot: 'content',
-                    }, '限号数:'),
-                    h('span', {
-                      slot: 'content',
-                    }, jsonParams[0])
+                    }, jsonParams[5])
                   ]),
                   h('p', [
                     h('span', {
@@ -235,7 +227,7 @@ export const calculatingDate = (type, data1, _this) => {
                     }, '限约数:'),
                     h('span', {
                       slot: 'content',
-                    }, jsonParams[0])
+                    }, jsonParams[6])
                   ]),
                   h('p', [
                     h('span', {

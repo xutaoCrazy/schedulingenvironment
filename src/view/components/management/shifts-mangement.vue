@@ -40,14 +40,6 @@
               </i-Col>
             </Form>
             <Form :label-width="10">
-              <!-- <Col span="5" v-show="true">
-                  <FormItem  >
-                    <Input >
-                        <Button slot="append" icon="ios-search"></Button>
-                    </Input>
-                  </FormItem>
-              </Col>-->
-
               <Col span="9">
                 <FormItem>
                   <Button type="primary" icon="ios-search" @click="searchTabel">查询</Button>
@@ -183,16 +175,24 @@
                 </FormItem>
               </i-Col>
             </Row>
-
-            <FormItem label="号别">
-              <Select v-model="shiftformdata[tab-1].bcb01" clearable>
-                <Option
-                  v-for="item in bcb01List"
-                  :value="item.bcb01"
-                  :key="item.bcb01"
-                >{{ item.bcb03 }}</Option>
-              </Select>
-            </FormItem>
+            <Row>
+              <Col span="12">
+                <FormItem label="号别">
+                  <Select v-model="shiftformdata[tab-1].bcb01" clearable>
+                    <Option
+                      v-for="item in bcb01List"
+                      :value="item.bcb01"
+                      :key="item.bcb01"
+                    >{{ item.bcb03 }}</Option>
+                  </Select>
+                </FormItem>
+              </Col>
+              <Col span="12">
+                <FormItem label="时间间隔">
+                  <InputNumber clearable v-model="shiftformdata[tab-1].zaa15" style="width:100%" />
+                </FormItem>
+              </Col>
+            </Row>
 
             <Row>
               <Col span="12">
@@ -221,12 +221,12 @@
             <Row>
               <Col span="12">
                 <FormItem label="限号数">
-                  <InputNumber clearable v-model="shiftformdata[tab-1].zaa12" />
+                  <InputNumber clearable v-model="shiftformdata[tab-1].zaa12" style="width:100%" />
                 </FormItem>
               </Col>
               <Col span="12">
                 <FormItem label="限约数">
-                  <InputNumber clearable v-model="shiftformdata[tab-1].zaa11" />
+                  <InputNumber clearable v-model="shiftformdata[tab-1].zaa11" style="width:100%" />
                 </FormItem>
               </Col>
             </Row>
@@ -242,8 +242,8 @@
         <Button style="margin-left: 8px" @click="cancel">取消</Button>
       </div>
     </Modal>
-    <Modal title="批量排班" v-model="batchschedu" width="600" mask-closable="false">
-      <Form :label-width="100" style="padding-right:30px" ref>
+    <Modal title="批量排班" v-model="batchschedu" width="650" style mask-closable="false">
+      <Form :label-width="100" style="padding-right:30px;overflow:auto;height:400px" ref>
         <Row>
           <i-Col span="12">
             <FormItem label="科室">
@@ -300,31 +300,33 @@
             </FormItem>
           </i-Col>
         </Row>
-        <FormItem label="时间">
-          <Row>
-            <i-Col span="11">
+        <Row>
+          <Col span="12">
+            <FormItem label="开始时间">
               <TimePicker type="time" placeholder="开始时间" v-model="batchDat[0].zaa07"></TimePicker>
-            </i-Col>
-            <Col span="2" style="text-align: center">-</Col>
-            <i-Col span="11">
+            </FormItem>
+          </Col>
+          <Col span="12">
+            <FormItem label="结束时间">
               <TimePicker type="time" placeholder="结束时间" v-model="batchDat[0].zaa08"></TimePicker>
-            </i-Col>
-          </Row>
-        </FormItem>
+            </FormItem>
+          </Col>
+        </Row>
+
         <Row>
           <i-Col span="12">
             <FormItem label="限号数">
-              <InputNumber clearable v-model="batchDat[0].zaa12" />
+              <InputNumber clearable v-model="batchDat[0].zaa12" style="width:100%" />
             </FormItem>
           </i-Col>
           <i-Col span="12">
             <FormItem label="限约数">
-              <InputNumber clearable v-model="batchDat[0].zaa11" />
+              <InputNumber clearable v-model="batchDat[0].zaa11" style="width:100%" />
             </FormItem>
           </i-Col>
         </Row>
         <Row>
-          <i-Col span="24">
+          <i-Col span="12">
             <FormItem label="诊室">
               <Select clearable v-model="batchDat[0].bas01">
                 <Option
@@ -335,28 +337,35 @@
               </Select>
             </FormItem>
           </i-Col>
+          <i-Col span="12">
+            <FormItem label="时间间隔">
+              <InputNumber clearable v-model="batchDat[0].zaa15" style="width:100%" />
+            </FormItem>
+          </i-Col>
         </Row>
-        <FormItem label="日期">
-          <Row>
-            <i-Col span="11">
+        <Row>
+          <Col span="12">
+            <FormItem label="开始日期">
               <DatePicker
                 type="date"
                 placeholder="开始日期"
                 v-model="batchDatbegindate"
                 :options="optionsBegindate"
               ></DatePicker>
-            </i-Col>
-            <Col span="2" style="text-align: center">-</Col>
-            <i-Col span="11">
+            </FormItem>
+          </Col>
+          <Col span="12">
+            <FormItem label="结束日期">
               <DatePicker
                 type="date"
                 placeholder="结束日期"
                 v-model="batchDatendDate"
                 :options="optionsdendDate"
               ></DatePicker>
-            </i-Col>
-          </Row>
-        </FormItem>
+            </FormItem>
+          </Col>
+        </Row>
+
         <Row>
           <i-Col span="12">
             <FormItem label="是否启用">
@@ -460,7 +469,8 @@ export default {
           zaa09: "",
           wxenabled: "0",
           zaa13: "0",
-          bck01: ""
+          bck01: "",
+          zaa15: ""
         }
       ],
       batchDatbegindate: "",
@@ -531,6 +541,7 @@ export default {
           zaa09: "",
           wxenabled: "0",
           zaa13: "0",
+          zaa15: "0",
           zaa01: null,
           bce01: this.bce01Name,
           bce03: this.bce03Name,
@@ -692,6 +703,7 @@ export default {
           zaa09: "",
           wxenabled: "0",
           zaa13: "0",
+          zaa15: "0",
           bce01: this.bce01Name,
           bce03: this.bce03Name,
           bck01: this.Department
@@ -745,6 +757,7 @@ export default {
               formData.bce01 = $data.bce01;
               formData.bce03 = $data.bce03;
               formData.bck01 = $data.bck01;
+              formData.zaa15 = $data.zaa15;
               this.selectBck01($data.bck01, $data.bas02);
             }
           });
@@ -772,7 +785,8 @@ export default {
         zaa13: "0",
         bce01: this.bce01Name,
         bce03: this.bce03Name,
-        bck01: this.Department
+        bck01: this.Department,
+        zaa15: "0"
       });
       this.tabs++;
     },
