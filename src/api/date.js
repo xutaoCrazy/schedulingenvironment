@@ -128,6 +128,7 @@ export const calculatingDate = (type, data1, _this) => {
 
   }
   let j = -1
+
   for (var i = nowDayOfWeek; i <= nowDate; i++) {
     j++
     if (type === 2) {
@@ -157,7 +158,8 @@ export const calculatingDate = (type, data1, _this) => {
               'height': '90px'
             }
           }, data1[params.index].list.map(item => {
-            if (dateArr[params.row.bce03.split(',')[1]].indexOf(jsonTime.time) > -1) {
+            debugger
+            if (dateArr[params.row.bce03.split(',')[1]].indexOf(jsonTime.time) > -1 && item[0][jsonTime.time]) {
               indexItem = 0
               params.row.list.filter((item, index) => {
                 if (item[0] && Object.keys(item[0]).indexOf(jsonTime.time) > -1) {
@@ -165,41 +167,132 @@ export const calculatingDate = (type, data1, _this) => {
                   indexItem++
                 }
               })
-              debugger
               let jsonParams = item[0][jsonTime.time].split(',')
-              return h('div', {
+              return h('Tooltip', {
                 'style': {
                   'background': jsonParams[3],
                   'height': 'calc(100% / ' + indexItem + ')',
                   'textAlign': 'center',
                   'lineHeight': 90 / indexItem + 'px',
-                  'cursor': 'pointer'
+                  'cursor': 'pointer',
+                  'width': '100%'
+                },
+
+                props: {
+                  placement: 'right',
+                  theme: "light",
+                  transfer: true
                 },
                 on: {
-                  click: () => {
-                    _this.show(params, 2, jsonTime.year, jsonParams[2], jsonParams[3])
+                  on: {
+                    click: () => {
+                      _this.show(params, 2, jsonTime.year, jsonParams[2], jsonParams[3])
+                    },
+                    mouseenter: () => { //移入
+                      _this.imgIndex = jsonParams[2]
+                    },
+                    mouseleave: () => { //移除
+                      _this.imgIndex = ''
+                    }
                   }
                 }
+
               }, [
-                h('img', {
+                h('div', {
+                  slot: 'content',
                   style: {
-                    marginRight: '5px',
-                    cursor: 'pointer',
-                    float: 'right',
-                    marginLeft: '5px',
-                    padding: '3px',
-                    background: '#fff'
-                  },
-                  attrs: {
-                    src: require('../assets/images/delete.png'),
-                    title: '删除'
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-all'
+                  }
+                }, [
+                  h('p', [
+                    h('span', {
+                      slot: 'content',
+                    }, '科室:'),
+                    h('span', {
+                      slot: 'content',
+                    }, jsonParams[4])
+                  ]),
+                  h('p', [
+                    h('span', {
+                      slot: 'content',
+                    }, '诊室:'),
+                    h('span', {
+                      slot: 'content',
+                    }, jsonParams[0])
+                  ]),
+                  h('p', [
+                    h('span', {
+                      slot: 'content',
+                    }, '限号数:'),
+                    h('span', {
+                      slot: 'content',
+                    }, jsonParams[0])
+                  ]),
+                  h('p', [
+                    h('span', {
+                      slot: 'content',
+                    }, '限约数:'),
+                    h('span', {
+                      slot: 'content',
+                    }, jsonParams[0])
+                  ]),
+                  h('p', [
+                    h('span', {
+                      slot: 'content',
+                    }, '时间:'),
+                    h('span', {
+                      slot: 'content',
+                    }, jsonParams[7])
+                  ])
+                ]),
+                h('div', {
+                  'style': {
+                    'background': jsonParams[3],
+                    'height': 'calc(100% )',
+                    'textAlign': 'center',
+                    'cursor': 'pointer',
+                    'width': '100%',
+                    'position': 'relative'
                   },
                   on: {
                     click: () => {
-                      _this.show(params, 1, TimeJson)
+                      _this.show(params, 2, jsonTime.year, jsonParams[2], jsonParams[3])
+                    },
+                    mouseenter: () => { //移入
+                      _this.imgIndex = jsonParams[2]
+                    },
+                    mouseleave: () => { //移除
+                      _this.imgIndex = ''
                     }
                   }
-                }, '删除')
+                }, [
+                  h('img', {
+                    style: {
+                      cursor: 'pointer',
+                      padding: '3px',
+                      background: '#fff',
+                      display: jsonParams[2] === _this.imgIndex ? 'inline-block' : 'none',
+                      position: 'absolute',
+                      right: '5px',
+                      top: '5px',
+                    },
+                    attrs: {
+                      src: require('../assets/images/delete.png'),
+                      title: '删除'
+                    },
+                    on: {
+                      click: () => {
+                        _this.show(params, 1, TimeJson)
+                      }
+                    }
+                  }, '删除'),
+                  h('span', {
+                    style: {
+
+                    },
+                  }, jsonParams[0]),
+                ])
               ], jsonParams[0])
             } else {
               return h('div', {

@@ -415,8 +415,8 @@ export default {
       columns4: [], //七天内
       columns5: [], //14天内
       columns6: [], //30天内
-      columns7: [], //60天内
-      columns8: [], //90天内
+      // columns7: [], //60天内
+      // columns8: [], //90天内
       titleArr: ["全部人员", "已选人员"],
       data1: [],
       data2: [],
@@ -424,8 +424,9 @@ export default {
       data4: [],
       data5: [],
       data6: [],
-      data7: [],
-      data8: [],
+      // data7: [],
+      // data8: [],
+      showTrue: {},
       tabeNum: 0,
       docter: "",
       docterList: "",
@@ -511,7 +512,8 @@ export default {
           return date && date.valueOf() < Date.now() - 86400000;
         }
       },
-      tabelIndex: 1
+      tabelIndex: 1,
+      imgIndex: "" // 当前显示的删除图标编号
     };
   },
   methods: {
@@ -1017,14 +1019,6 @@ export default {
           this.startDate = getDateStr().year + " " + "00:00:00";
           this.endDate = getDateStr(29).year + " " + "23:59:59";
           break;
-        // case 6:
-        //   this.startDate = getDateStr().year + " " + "00:00:00";
-        //   this.endDate = getDateStr(60).year + " " + "23:59:59";
-        //   break;
-        // case 7:
-        //   this.startDate = getDateStr().year + " " + "00:00:00";
-        //   this.endDate = getDateStr(90).year + " " + "23:59:59";
-        //   break;
       }
       this.tableInit();
     },
