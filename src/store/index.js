@@ -16,14 +16,11 @@ export default new Vuex.Store({
     setSideCollapse(state, bool) {
       state.sideCollapse = bool
     },
-    trueNameFlag(state, name) {
+    trueNameFlag(state, name) { //当前登录人
       debugger;
       state.trueName = name
     },
-    bck03Flag(state, name) {
-      state.trueName = name
-    },
-    systemVer(state, name) {
+    systemVer(state, name) { //版本号
       state.systemVer = name
     }
   },
