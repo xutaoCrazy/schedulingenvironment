@@ -109,18 +109,10 @@
             ></Table>
             <Page :total="total" :page-size="5" show-total @on-change="changePage" />
           </TabPane>
-          <!--<TabPane label="60天内">
-            <Table border :columns="columns7" :data="data7" disabled-hover ref="table"></Table>
-            <Page :total="total" :page-size="5" show-total @on-change="changePage" />
-          </TabPane>
-          <TabPane label="90天内">
-            <Table border :columns="columns8" :data="data8" disabled-hover ref="table"></Table>
-            <Page :total="total" :page-size="5" show-total @on-change="changePage" />
-          </TabPane>-->
         </Tabs>
       </Content>
     </Layout>
-    <Modal v-model="departModel" title="班次配置" mask-closable="false">
+    <Modal v-model="departModel" title="班次配置">
       <Tabs @on-click="tabTriggerEvent">
         <TabPane v-for="tab in tabs" :key="tab" :label="'班次配置' + tab">
           <Form :label-width="100" style="padding-right:30px" ref="formValidate">
@@ -140,17 +132,29 @@
             <FormItem label="日期" v-show="showDate">
               <Input v-model="sameday" readonly />
             </FormItem>
-            <FormItem label="时间">
-              <Row>
-                <i-Col span="11">
-                  <DatePicker type="time" placeholder="开始时间" v-model="shiftformdata[tab-1].zaa07"></DatePicker>
-                </i-Col>
-                <i-Col span="2" style="text-align: center">-</i-Col>
-                <i-Col span="11">
-                  <TimePicker type="time" placeholder="结束时间" v-model="shiftformdata[tab-1].zaa08"></TimePicker>
-                </i-Col>
-              </Row>
-            </FormItem>
+            <Row>
+              <i-Col span="12">
+                <FormItem label="开始时间">
+                  <DatePicker
+                    type="time"
+                    placeholder="开始时间"
+                    v-model="shiftformdata[tab-1].zaa07"
+                    clearable="false"
+                  ></DatePicker>
+                </FormItem>
+              </i-Col>
+              <i-Col span="12">
+                <FormItem label="时间">
+                  <TimePicker
+                    type="time"
+                    placeholder="结束时间"
+                    v-model="shiftformdata[tab-1].zaa08"
+                    clearable="false"
+                  ></TimePicker>
+                </FormItem>
+              </i-Col>
+            </Row>
+
             <Row>
               <i-Col span="12">
                 <FormItem label="科室">
@@ -197,7 +201,7 @@
             <Row>
               <Col span="12">
                 <FormItem label="是否启用">
-                  <Select clearable v-model="shiftformdata[tab-1].zaa13">
+                  <Select v-model="shiftformdata[tab-1].zaa13">
                     <Option
                       v-for="item in zaa13List"
                       :value="item.value"
@@ -208,7 +212,7 @@
               </Col>
               <Col span="12">
                 <FormItem label="是否关闭微信" clearable>
-                  <Select clearable v-model="shiftformdata[tab-1].wxenabled">
+                  <Select v-model="shiftformdata[tab-1].wxenabled">
                     <Option
                       v-for="item in wxenabledList"
                       :value="item.value"
@@ -369,7 +373,7 @@
         <Row>
           <i-Col span="12">
             <FormItem label="是否启用">
-              <Select clearable v-model="batchDat[0].zaa13">
+              <Select v-model="batchDat[0].zaa13">
                 <Option
                   v-for="item in zaa13List"
                   :value="item.value"
@@ -379,8 +383,8 @@
             </FormItem>
           </i-Col>
           <i-Col span="12">
-            <FormItem label="是否关闭微信" clearable>
-              <Select clearable v-model="batchDat[0].wxenabled">
+            <FormItem label="是否关闭微信">
+              <Select v-model="batchDat[0].wxenabled">
                 <Option
                   v-for="item in wxenabledList"
                   :value="item.value"
@@ -907,6 +911,7 @@ export default {
       this.tabindex = name;
     },
     save() {
+      debugger;
       this.isBtnLoading = true;
       this.promiseShifts(
         "/api/rateweb/cloud/SysSchedule/saveSchedule",

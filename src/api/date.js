@@ -188,12 +188,7 @@ export const calculatingDate = (type, data1, _this) => {
                     click: () => {
                       _this.show(params, 2, jsonTime.year, jsonParams[2], jsonParams[3])
                     },
-                    mouseenter: () => { //移入
-                      _this.imgIndex = jsonParams[2]
-                    },
-                    mouseleave: () => { //移除
-                      _this.imgIndex = ''
-                    }
+
                   }
                 }
 
@@ -252,7 +247,9 @@ export const calculatingDate = (type, data1, _this) => {
                       _this.show(params, 2, jsonTime.year, jsonParams[2], jsonParams[3])
                     },
                     mouseenter: () => { //移入
-                      _this.imgIndex = jsonParams[2]
+                      if (jsonParams[3] != 'null') {
+                        _this.imgIndex = jsonParams[2]
+                      }
                     },
                     mouseleave: () => { //移除
                       _this.imgIndex = ''
@@ -286,7 +283,7 @@ export const calculatingDate = (type, data1, _this) => {
                   }, jsonParams[0]),
                 ])
               ], jsonParams[0])
-            } else {
+            } else if (dateArr[params.row.bce03.split(',')[1]].indexOf(jsonTime.time) === -1) {
               return h('div', {
                 'style': {
                   'background': '',
