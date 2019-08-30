@@ -10,7 +10,8 @@ export default new Vuex.Store({
   state: {
     sideCollapse: false,
     trueName: '',
-    systemVer: ''
+    systemVer: '',
+    parameterArray: ''
   },
   mutations: {
     setSideCollapse(state, bool) {
@@ -22,6 +23,9 @@ export default new Vuex.Store({
     },
     systemVer(state, name) { //版本号
       state.systemVer = name
+    },
+    parameterArray(state, name) { //医院名称
+      state.parameterArray = name
     }
   },
   actions: {

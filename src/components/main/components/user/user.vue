@@ -51,7 +51,7 @@ export default {
     ...mapState(["trueName"])
   },
   methods: {
-    ...mapMutations(["trueNameFlag", "systemVer"]),
+    ...mapMutations(["trueNameFlag", "systemVer", "parameterArray"]),
     promiseShifts(url, type, params, flag) {
       let data = new Promise((resolve, reject) => {
         let save = axiosFunc(url, type, params, flag);
@@ -69,6 +69,7 @@ export default {
         if (res.status === 200) {
           this.trueNameFlag(res.data.map.trueName);
           this.systemVer(res.data.map.systemVer);
+          this.parameterArray(res.data.map.parameterArray);
           this.bck03 = res.data.map.bck03;
           this.loginName = res.data.map.loginName;
           this.loginTime = this.$moment(
