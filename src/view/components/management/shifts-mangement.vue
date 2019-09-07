@@ -18,7 +18,7 @@
               </i-Col>
               <i-Col span="5">
                 <FormItem label="职务">
-                  <Select v-model="docter" filterable clearable @on-change="selectDepartment">
+                  <Select v-model="docter" filterable @on-change="selectDepartment">
                     <Option
                       v-for="item in docterList"
                       :value="item.aaa01"
@@ -49,9 +49,9 @@
             </Form>
           </Col>
           <Col span="7" style="text-align:right" class="buttongroup">
-            <Button type="primary">批量删除</Button>
+            <Button type="primary" @click="batchdeletion=true">批量删除</Button>
             <Button type="primary" @click="batchschedu=true">批量排班</Button>
-            <Button type="primary">复制排班</Button>
+            <Button type="primary" @click="duplicatescheduling=true">复制排班</Button>
           </Col>
         </Row>
       </Header>
@@ -113,11 +113,15 @@
       </Content>
     </Layout>
     <Modal v-model="departModel" title="班次配置">
-      <Tabs @on-click="tabTriggerEvent">
-        <TabPane v-for="tab in tabs" :key="tab" :label="'班次配置' + tab">
+      <Tabs @on-click="tabTriggerEvent" v-model="tabName">
+        <TabPane v-for="tab in tabs" :key="tab" :label="'班次配置' + tab" :name="'name'+tab">
           <Form :label-width="100" style="padding-right:30px" ref="formValidate">
             <FormItem label="班次" :prop="shiftformdata[tab-1].zaa05">
-              <Select :label-in-value="true" v-model="shiftformdata[tab-1].zaa05" clearable>
+              <Select
+                :label-in-value="true"
+                v-model="shiftformdata[tab-1].zaa05"
+                :clearable="false"
+              >
                 <Option
                   v-for="item in zaa05List"
                   :value="item.bco02"
@@ -135,12 +139,12 @@
             <Row>
               <i-Col span="12">
                 <FormItem label="开始时间">
-                  <DatePicker
+                  <TimePicker
                     type="time"
                     placeholder="开始时间"
                     v-model="shiftformdata[tab-1].zaa07"
-                    clearable="false"
-                  ></DatePicker>
+                    :clearable="false"
+                  ></TimePicker>
                 </FormItem>
               </i-Col>
               <i-Col span="12">
@@ -149,7 +153,7 @@
                     type="time"
                     placeholder="结束时间"
                     v-model="shiftformdata[tab-1].zaa08"
-                    clearable="false"
+                    :clearable="false"
                   ></TimePicker>
                 </FormItem>
               </i-Col>
@@ -172,7 +176,7 @@
                   <Select v-model="shiftformdata[tab-1].bas02" clearable>
                     <Option
                       v-for="item in bas02List"
-                      :value="item.bas01"
+                      :value="item.bas02"
                       :key="item.bas01"
                     >{{ item.bas02 }}</Option>
                   </Select>
@@ -246,7 +250,7 @@
         <Button style="margin-left: 8px" @click="cancel">取消</Button>
       </div>
     </Modal>
-    <Modal title="批量排班" v-model="batchschedu" width="650" style mask-closable="false">
+    <Modal title="批量排班" v-model="batchschedu" width="650" style :mask-closable="false">
       <Form :label-width="100" style="padding-right:30px;overflow:auto;height:400px" ref>
         <Row>
           <i-Col span="12">
@@ -307,12 +311,22 @@
         <Row>
           <Col span="12">
             <FormItem label="开始时间">
-              <TimePicker type="time" placeholder="开始时间" v-model="batchDat[0].zaa07"></TimePicker>
+              <TimePicker
+                type="time"
+                placeholder="开始时间"
+                v-model="batchDat[0].zaa07"
+                :transfer="true"
+              ></TimePicker>
             </FormItem>
           </Col>
           <Col span="12">
             <FormItem label="结束时间">
-              <TimePicker type="time" placeholder="结束时间" v-model="batchDat[0].zaa08"></TimePicker>
+              <TimePicker
+                type="time"
+                placeholder="结束时间"
+                v-model="batchDat[0].zaa08"
+                :transfer="true"
+              ></TimePicker>
             </FormItem>
           </Col>
         </Row>
@@ -413,12 +427,188 @@
         <Button style="margin-left: 8px" @click="cancel(1)">取消</Button>
       </div>
     </Modal>
+    <Modal title="批量删除" v-model="batchdeletion" width="650" style :mask-closable="false">
+      <Form :label-width="100" style="padding-right:30px;overflow:auto;height:480px" ref>
+        <Row>
+          <Col span="12">
+            <FormItem label="开始日期">
+              <DatePicker
+                type="date"
+                placeholder="开始日期"
+                v-model="delbatchDat.startDate"
+                :options="optionsBegindate"
+              ></DatePicker>
+            </FormItem>
+          </Col>
+          <Col span="12">
+            <FormItem label="结束日期">
+              <DatePicker
+                type="date"
+                placeholder="结束日期"
+                v-model="delbatchDat.endDate"
+                :options="optionsdendDate"
+              ></DatePicker>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="24">
+            <FormItem label="星期">
+              <Checkbox
+                style="float:left"
+                :value="checkAll"
+                @click.prevent.native="handleCheckAll"
+              >全部</Checkbox>
+              <CheckboxGroup v-model="checkAllGroup" @on-change="checkAllGroupChange" size="large">
+                <Checkbox label="1">周一</Checkbox>
+                <Checkbox label="2">周二</Checkbox>
+                <Checkbox label="3">周三</Checkbox>
+                <Checkbox label="4">周四</Checkbox>
+                <Checkbox label="5">周五</Checkbox>
+                <Checkbox label="6">周六</Checkbox>
+                <Checkbox label="7">周日</Checkbox>
+              </CheckboxGroup>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="24">
+            <FormItem label="科室">
+              <Select clearable @on-change="delScheduling" v-model="delbatchDat.bck01">
+                <Option
+                  v-for="item in DepartmentList"
+                  :value="item.bck01"
+                  :key="item.bck01"
+                >{{ item.bck03 }}</Option>
+              </Select>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="24">
+            <FormItem label="职务">
+              <Select filterable clearable v-model="delbatchDat.aaa01" @on-change="delScheduling">
+                <Option
+                  v-for="item in docterList"
+                  :value="item.aaa01"
+                  :key="item.aaa01"
+                >{{ item.aaa02 }}</Option>
+              </Select>
+            </FormItem>
+          </Col>
+        </Row>
+        <FormItem label="人员">
+          <Transfer
+            :data="delmockData"
+            :target-keys="targetKeys2"
+            :render-format="render2"
+            @on-change="handleChange3"
+            :titles="titleArr"
+            :on-selected-change="selectedchange"
+          ></Transfer>
+        </FormItem>
+      </Form>
+      <div slot="footer">
+        <Button type="primary" @click="delSvae" :loading="isBtnLoading">保存</Button>
+        <Button style="margin-left: 8px" @click="batchdeletion=false">取消</Button>
+      </div>
+    </Modal>
+
+    <Modal title="复制排班" v-model="duplicatescheduling" width="650" style :mask-closable="false">
+      <Form :label-width="100" style="padding-right:30px;overflow:auto;height:530px" ref>
+        <Row>
+          <Col span="24">
+            <FormItem label="科室">
+              <Select clearable @on-change="dupScheduling" v-model="dupbatchDat.bck01">
+                <Option
+                  v-for="item in DepartmentList"
+                  :value="item.bck01"
+                  :key="item.bck01"
+                >{{ item.bck03 }}</Option>
+              </Select>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="24">
+            <FormItem label="职务">
+              <Select filterable clearable v-model="dupbatchDat.aaa01" @on-change="dupScheduling">
+                <Option
+                  v-for="item in docterList"
+                  :value="item.aaa01"
+                  :key="item.aaa01"
+                >{{ item.aaa02 }}</Option>
+              </Select>
+            </FormItem>
+          </Col>
+        </Row>
+        <FormItem label="人员">
+          <Transfer
+            :data="dupmockData"
+            :target-keys="targetKeys3"
+            :render-format="render3"
+            @on-change="handleChange3"
+            :titles="titleArr"
+            :on-selected-change="selectedchange"
+          ></Transfer>
+        </FormItem>
+        <Row>
+          <Col span="24">
+            <FormItem>
+              <RadioGroup size="large" @on-change="radioAllGroupChange">
+                <Radio label="1">本周</Radio>
+                <Radio label="2">上周</Radio>
+                <Radio label="3">本月</Radio>
+              </RadioGroup>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="12">
+            <FormItem label="复制开始日期">
+              <Input placeholder readonly v-model="dupbatchDat.startDate"></Input>
+            </FormItem>
+          </Col>
+          <Col span="12">
+            <FormItem label="复制结束日期">
+              <Input placeholder readonly v-model="dupbatchDat.endDate"></Input>
+            </FormItem>
+          </Col>
+        </Row>
+        <Row>
+          <Col span="12">
+            <FormItem label="目标开始日期">
+              <DatePicker
+                type="date"
+                placeholder="目标开始日期"
+                v-model="delbatchDat.startDate"
+                :options="optionsBegindate"
+              ></DatePicker>
+            </FormItem>
+          </Col>
+          <Col span="12">
+            <FormItem label="目标结束日期">
+              <DatePicker
+                type="date"
+                placeholder="目标结束日期"
+                v-model="delbatchDat.endDate"
+                :options="optionsdendDate"
+              ></DatePicker>
+            </FormItem>
+          </Col>
+        </Row>
+      </Form>
+      <div slot="footer">
+        <Button type="primary" @click="delSvae" :loading="isBtnLoading">保存</Button>
+        <Button style="margin-left: 8px" @click>取消</Button>
+      </div>
+    </Modal>
   </div>
 </template>
 <script>
 import "./index.less";
 import { axiosFunc } from "@/api/data";
-import { calculatingDate, getDateStr, setlastDay } from "@/api/date";
+import { calculatingDate, getDateStr, setlastDay, getTime } from "@/api/date";
 export default {
   data() {
     return {
@@ -428,8 +618,6 @@ export default {
       columns4: [], //七天内
       columns5: [], //14天内
       columns6: [], //30天内
-      // columns7: [], //60天内
-      // columns8: [], //90天内
       titleArr: ["全部人员", "已选人员"],
       data1: [],
       data2: [],
@@ -437,8 +625,8 @@ export default {
       data4: [],
       data5: [],
       data6: [],
-      // data7: [],
-      // data8: [],
+      tabName: "name1",
+      checkAll: false,
       showTrue: {},
       tabeNum: 0,
       docter: "",
@@ -447,6 +635,8 @@ export default {
       DepartmentList: "",
       departModel: false,
       batchschedu: false,
+      batchdeletion: false, //批量删除
+      duplicatescheduling: false, //复制排班
       tabs: 1,
       personnelList: "",
       zaa05List: [],
@@ -468,21 +658,35 @@ export default {
           bas02: "",
           bck03: "",
           bcb01: "",
-          zaa12: "",
-          zaa11: "",
+          zaa12: 0,
+          zaa11: 0,
           zaa09: "",
           wxenabled: "0",
           zaa13: "0",
           bck01: "",
-          zaa15: ""
+          zaa15: 0
         }
       ],
+      delbatchDat: {
+        bck01: "",
+        startDate: "",
+        endDate: "",
+        weekNum: "",
+        userIds: []
+      },
+      dupbatchDat: {
+        bck01: "",
+        aaa01: "",
+        startDate: "",
+        endDate: ""
+      },
       batchDatbegindate: "",
       batchDatendDate: "",
       tabId: 1,
       tabindex: 0,
       bas02List: [], // 诊室集合
       bcb01List: "", // 挂号号别
+      checkAllGroup: [],
       zaa13List: [
         {
           label: "正常",
@@ -514,8 +718,14 @@ export default {
       savebeginDate: "",
       saveEndDate: "",
       mockData: [],
+      delmockData: [],
+      dupmockData: [],
       targetKeys1: [],
+      targetKeys2: [],
+      targetKeys3: [],
       newTargetKeysArr: [],
+      newTargetKeysArr2: [],
+      newTargetKeysArr3: [],
       optionsBegindate: {
         disabledDate(date) {
           return date && date.valueOf() < Date.now() - 86400000;
@@ -527,7 +737,8 @@ export default {
         }
       },
       tabelIndex: 1,
-      imgIndex: "" // 当前显示的删除图标编号
+      imgIndex: "", // 当前显示的删除图标编号,
+      TooltipFlag: false //左侧悬浮框显示隐藏
     };
   },
   methods: {
@@ -540,12 +751,12 @@ export default {
           bas02: "",
           bck03: "",
           bcb01: "",
-          zaa12: "",
-          zaa11: "",
+          zaa12: 0,
+          zaa11: 0,
           zaa09: "",
           wxenabled: "0",
           zaa13: "0",
-          zaa15: "0",
+          zaa15: 0,
           zaa01: null,
           bce01: this.bce01Name,
           bce03: this.bce03Name,
@@ -553,6 +764,61 @@ export default {
         }
       ];
       return arr;
+    },
+    handleCheckAll() {
+      //CheckBox 全选反选
+      debugger;
+      this.checkAll = !this.checkAll;
+      if (this.checkAll) {
+        this.checkAllGroup = ["1", "2", "3", "4", "5", "6", "7"];
+      } else {
+        this.checkAllGroup = [];
+      }
+    },
+    checkAllGroupChange(data) {
+      //点击单个CheckBox 选择
+
+      if (data.length === 7) {
+        this.checkAll = true;
+      } else {
+        this.checkAll = false;
+      }
+    },
+    radioAllGroupChange(data) {
+      debugger;
+
+      let weekOfday = parseInt(this.$moment().format("d")); // 计算今天是这周第几天 周日为一周中的第一天
+      switch (data) {
+        case "1": //本周
+          this.dupbatchDat.startDate = this.$moment(
+            this.$moment().subtract(weekOfday, "days") + 86400000
+          ).format("YYYY-MM-DD"); // 周一日期
+          this.dupbatchDat.endDate = this.$moment(
+            this.$moment().add(7 - weekOfday - 1, "days") + 86400000
+          ).format("YYYY-MM-DD"); // 周日日期
+
+          break;
+        case "2": //上周
+          this.dupbatchDat.startDate = this.$moment(
+            this.$moment().subtract(weekOfday + 7, "days") + 86400000
+          ).format("YYYY-MM-DD"); // 周一日期
+          this.dupbatchDat.endDate = this.$moment(
+            this.$moment().subtract(weekOfday + 1, "days") + 86400000
+          ).format("YYYY-MM-DD"); // 周日日期
+
+          break;
+        case "3": //本月
+          this.dupbatchDat.startDate =
+            this.$moment()
+              .add("month", 0)
+              .format("YYYY-MM") + "-01";
+          this.dupbatchDat.endDate = this.$moment(this.dupbatchDat.startDate)
+            .add("month", 1)
+            .add("days", -1)
+            .format("YYYY-MM-DD");
+
+          break;
+      }
     },
     promiseShifts(url, type, params, flag) {
       let data = new Promise((resolve, reject) => {
@@ -576,7 +842,6 @@ export default {
           rows: 500
         }
       ).then(res => {
-        debugger;
         this.tabelloading = false;
         if (res.status === 200) {
           switch (this.tabindex) {
@@ -622,7 +887,6 @@ export default {
         "get",
         {}
       ).then(res => {
-        debugger;
         if (res.status === 200) {
           this.docterList = res.data;
         }
@@ -633,7 +897,7 @@ export default {
         rows: 30
       }).then(res => {
         // 科室
-        debugger;
+
         if (res.status === 200 && res.data.result === "SUCCESS") {
           this.DepartmentList = res.data.list;
         }
@@ -644,7 +908,7 @@ export default {
         {}
       ).then(res => {
         // 班次
-        debugger;
+
         if (res.status === 200 && res.data) {
           this.zaa05List = res.data;
         }
@@ -655,7 +919,7 @@ export default {
         {}
       ).then(res => {
         // 挂号号别
-        debugger;
+
         if (res.status === 200) {
           this.bcb01List = res.data;
         }
@@ -669,7 +933,9 @@ export default {
       this.handleTab(0);
     },
     show(params, flag, timeJson, zaa01, $color, $item) {
-      debugger;
+      this.tabs = 1;
+      this.tabeNum = 0;
+      this.tabName = "name1";
       if (zaa01 && $color === "null") {
         this.showType = 4;
         this.promiseShifts(
@@ -679,7 +945,6 @@ export default {
           true
         ).then(res => {
           if (res.status === 200 && res.data.result === "SUCCESS") {
-            debugger;
             this.tableInit();
             this.$Notice.success({
               title: "保存排班成功"
@@ -693,7 +958,6 @@ export default {
           }
         });
       } else {
-        debugger;
         this.shiftformdata = [];
         this.shiftformdata.push({
           zaa05: "",
@@ -702,12 +966,12 @@ export default {
           bas02: "",
           bck03: "",
           bcb01: "",
-          zaa12: "",
-          zaa11: "",
+          zaa12: 0,
+          zaa11: 0,
           zaa09: "",
           wxenabled: "0",
           zaa13: "0",
-          zaa15: "0",
+          zaa15: 0,
           bce01: this.bce01Name,
           bce03: this.bce03Name,
           bck01: this.Department
@@ -720,7 +984,7 @@ export default {
         this.bce03Name = params.row.bce03.split(",")[0];
         this.departModel = true;
         this.showType = flag;
-        this.tabs = 1;
+
         switch (flag) {
           case 1:
             this.showDate = false;
@@ -741,7 +1005,7 @@ export default {
             { id: zaa01 }
           ).then(res => {
             // 挂号号别
-            debugger;
+
             this.showType = 3;
             if (res.status === 200) {
               let formData = this.shiftformdata[0];
@@ -771,7 +1035,7 @@ export default {
 
     handleTabsAdd() {
       // 点击新增tabs 动态添加保存数据
-      debugger;
+
       if (this.zaa05List.length <= this.tabs) {
         return false;
       }
@@ -782,15 +1046,15 @@ export default {
         bas02: "",
         bck03: "",
         bcb01: "",
-        zaa12: "",
-        zaa11: "",
+        zaa12: 0,
+        zaa11: 0,
         zaa09: "",
         wxenabled: "0",
         zaa13: "0",
         bce01: this.bce01Name,
         bce03: this.bce03Name,
         bck01: this.Department,
-        zaa15: "0"
+        zaa15: 0
       });
       this.tabs++;
     },
@@ -810,8 +1074,8 @@ export default {
       this.getpersonnelPageList();
     },
     selectionScheduling(val) {
-      // 排班多选
-      debugger;
+      // 批量排班多选
+
       this.promiseShifts(
         "/api/rateweb/cloud/SysSchedule/getPersonnelList",
         "get",
@@ -832,7 +1096,61 @@ export default {
       this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
-        debugger;
+        if (res.status === 200) {
+          this.bas02List = res.data;
+        }
+      });
+    },
+    delScheduling(val) {
+      // 批量删除排班多选
+
+      this.promiseShifts(
+        "/api/rateweb/cloud/SysSchedule/getPersonnelList",
+        "get",
+        { id: this.delbatchDat.bck01, aaa01: this.delbatchDat.aaa01 }
+      ).then(res => {
+        if (res.status === 200 && res.data.length) {
+          this.delmockData = [];
+          this.targetKeys2 = [];
+          this.newTargetKeysArr2 = [];
+          for (let i = 0; i < res.data.length; i++) {
+            this.delmockData.push({
+              key: res.data[i].bce01,
+              label: res.data[i].bce03
+            });
+          }
+        }
+      });
+      this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+        id: val
+      }).then(res => {
+        if (res.status === 200) {
+          this.bas02List = res.data;
+        }
+      });
+    },
+    dupScheduling(val) {
+      // 批量删除排班多选
+      this.promiseShifts(
+        "/api/rateweb/cloud/SysSchedule/getPersonnelList",
+        "get",
+        { id: this.dupbatchDat.bck01, aaa01: this.dupbatchDat.aaa01 }
+      ).then(res => {
+        if (res.status === 200 && res.data.length) {
+          this.dupmockData = [];
+          this.targetKeys3 = [];
+          this.newTargetKeysArr3 = [];
+          for (let i = 0; i < res.data.length; i++) {
+            this.dupmockData.push({
+              key: res.data[i].bce01,
+              label: res.data[i].bce03
+            });
+          }
+        }
+      });
+      this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+        id: val
+      }).then(res => {
         if (res.status === 200) {
           this.bas02List = res.data;
         }
@@ -841,10 +1159,16 @@ export default {
     render1(item) {
       return item.label;
     },
+    render2(item) {
+      return item.label;
+    },
+    render3(item) {
+      return item.label;
+    },
     handleChange1(newTargetKeys, direction, moveKeys) {
       //  点击左边右边 图标 切换  存储人已选人员列表
       this.targetKeys1 = newTargetKeys;
-      debugger;
+
       this.newTargetKeysArr = [];
       this.mockData.filter((item, index) => {
         if (newTargetKeys.indexOf(item.key) > -1) {
@@ -855,9 +1179,34 @@ export default {
         }
       });
     },
-    selectedchange(sourceSelectedKeys, targetSelectedKeys) {
+    handleChange2(newTargetKeys, direction, moveKeys) {
       debugger;
+      //批量删除
+      //  点击左边右边 图标 切换  存储人已选人员列表
+      this.targetKeys2 = newTargetKeys;
+      this.newTargetKeysArr2 = [];
+      this.delbatchDat.userIds = newTargetKeys;
+      this.delmockData.filter((item, index) => {
+        if (newTargetKeys.indexOf(item.key) > -1) {
+          this.newTargetKeysArr2.push(item.key);
+          this.delbatchDat.userIds = this.newTargetKeysArr2;
+        }
+      });
     },
+    handleChange3(newTargetKeys, direction, moveKeys) {
+      debugger;
+      //复制排班
+      this.targetKeys3 = newTargetKeys;
+      this.newTargetKeysArr3 = [];
+      this.delbatchDat.userIds = newTargetKeys;
+      this.dupmockData.filter((item, index) => {
+        if (newTargetKeys.indexOf(item.key) > -1) {
+          this.newTargetKeysArr2.push(item.key);
+          this.delbatchDat.userIds = this.newTargetKeysArr3;
+        }
+      });
+    },
+    selectedchange(sourceSelectedKeys, targetSelectedKeys) {},
 
     getpersonnelPageList() {
       // 加载表格
@@ -871,7 +1220,6 @@ export default {
           rows: this.pageSize
         }
       ).then(res => {
-        debugger;
         if (res.status === 200 && res.data.rows != null) {
           this.bce01Arr = [];
           this.total = res.data.total;
@@ -883,8 +1231,8 @@ export default {
       });
     },
     getMoreParams(item, index) {
-      // 选择班次 回填开始时间和结束时间
       debugger;
+      // 选择班次 回填开始时间和结束时间
       if (index === 1) {
         this.batchDat[0].zaa07 = item.bco03;
         this.batchDat[0].zaa08 = item.bco04;
@@ -898,7 +1246,6 @@ export default {
       this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
-        debugger;
         if (res.status === 200) {
           this.bas02List = res.data;
         }
@@ -907,11 +1254,12 @@ export default {
         }
       });
     },
-    tabTriggerEvent(name) {
-      this.tabindex = name;
+    tabTriggerEvent(name, index) {
+      debugger;
+      this.tabeNum = parseFloat(name.split("name")[1]) - 1;
     },
     save() {
-      debugger;
+      //排班
       this.isBtnLoading = true;
       this.promiseShifts(
         "/api/rateweb/cloud/SysSchedule/saveSchedule",
@@ -924,11 +1272,10 @@ export default {
         },
         true
       ).then(res => {
-        debugger;
         if (res.status === 200 && res.data.result === "SUCCESS") {
-          debugger;
           this.shiftformdataclear();
           this.departModel = !this.departModel;
+          this.tabs = 1;
           this.tableInit();
           this.$Message.success({
             content: "保存成功",
@@ -945,7 +1292,7 @@ export default {
       });
     },
     batchSvae() {
-      debugger;
+      // 批量排班
       this.isBtnLoading = true;
       this.promiseShifts(
         "/api/rateweb/cloud/SysSchedule/saveSchedule",
@@ -963,14 +1310,55 @@ export default {
         },
         true
       ).then(res => {
-        debugger;
         if (res.status === 200 && res.data.result === "SUCCESS") {
           this.curr = 1;
           this.tableInit();
+          this.batchschedu = false;
           this.$Message.success({
             content: "保存成功",
             duration: 2
           });
+        } else {
+          this.$Modal.error({
+            title: "信息",
+            content: res.data.resultMsg,
+            className: "vertical-center-modal"
+          });
+        }
+        this.isBtnLoading = false;
+      });
+    },
+    delSvae() {
+      //批量删除保存
+      // this.isBtnLoading = true;
+      debugger;
+      if (this.checkAllGroup.length == 7) {
+        this.delbatchDat.weekNum = "";
+      } else {
+        this.delbatchDat.weekNum = this.checkAllGroup.join(",");
+      }
+      this.delbatchDat.userIds = this.delbatchDat.userIds.join(",");
+      this.delbatchDat.startDate = this.$moment(
+        this.delbatchDat.startDate
+      ).format("YYYY-MM-DD");
+      this.delbatchDat.endDate = this.$moment(this.delbatchDat.endDate).format(
+        "YYYY-MM-DD"
+      );
+      this.promiseShifts(
+        "/api/rateweb/cloud/SysSchedule/removeBatchSourceData",
+        "post",
+        this.delbatchDat,
+        true
+      ).then(res => {
+        if (res.status === 200 && res.data.result === "SUCCESS") {
+          this.batchdeletion = false;
+          this.$Message.success({
+            content: res.data.resultMsg,
+            duration: 2
+          });
+
+          this.curr = 1;
+          this.tableInit();
         } else {
           this.$Modal.error({
             title: "信息",
@@ -986,10 +1374,11 @@ export default {
         this.batchschedu = !this.batchschedu;
       } else {
         this.departModel = !this.departModel;
+        this.tabs = 1;
+        this.tabName = "name1";
       }
     },
     selectPersonnel(val) {
-      debugger;
       this.bce01Name = val.value;
       this.bce03Name = val.label;
       this.bce01Arr = [];
@@ -1006,20 +1395,18 @@ export default {
       let now = new Date(); // 当前日期
       let nowDayOfWeek = now.getDay();
       this.tabindex = index + 1;
-      this.tabeNum = index;
       switch (index) {
         case 0:
           this.startDate = getDateStr(0).year + " " + "00:00:00";
           this.endDate = getDateStr(7 - nowDayOfWeek).year + " " + "23:59:59";
           break;
         case 1:
-          debugger;
           this.startDate = getDateStr(0, true).year + " " + "00:00:00";
           this.endDate = getDateStr(6, true).year + " " + "23:59:59";
           break;
         case 2:
           var nows = new Date(); // 当前日期
-          var nowMonth = nows.getMonth(); // 当前月
+          var nowMonth = nows.getMonth() + 1; // 当前月
           var nowYear = nows.getYear(); // 当前年
           nowYear += nowYear < 2000 ? 1900 : 0;
           var dateLen = new Date(nowYear, nowMonth, 0).getDate();
@@ -1044,6 +1431,32 @@ export default {
     changePage(curr) {
       this.curr = curr;
       this.getpersonnelPageList();
+    },
+    removeWork(zaa01, e) {
+      console.log(zaa01);
+      var evt = e || window.event;
+      evt.stopPropagation(); //阻止自身冒泡事件
+      this.promiseShifts(
+        "/api/rateweb/cloud/SysSchedule/removeSourceData",
+        "post",
+        {
+          id: zaa01
+        }
+      ).then(res => {
+        if (res.status === 200 && res.data.result === "SUCCESS") {
+          this.$Message.success({
+            content: "删除成功",
+            duration: 2
+          });
+          this.tableInit();
+        } else {
+          this.$Modal.error({
+            title: "信息",
+            content: res.data.resultMsg,
+            className: "vertical-center-modal"
+          });
+        }
+      });
     }
   },
   mounted() {

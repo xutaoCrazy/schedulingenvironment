@@ -24,7 +24,7 @@ export const calculatingDate = (type, data1, _this) => {
       break
     case 3:
       var nows = new Date() // 当前日期
-      var nowMonth = nows.getMonth() // 当前月
+      var nowMonth = nows.getMonth() + 1 // 当前月
       var nowYear = nows.getYear() // 当前年
       nowYear += (nowYear < 2000) ? 1900 : 0
       var dateLen = new Date(nowYear, nowMonth, 0).getDate()
@@ -115,8 +115,8 @@ export const calculatingDate = (type, data1, _this) => {
 
   var $jsonTime = ''
   let dateArr = {};
+  var d1 = new Date();
   for (let k = 0; k < data1.length; k++) { //计算当前列 是否有排班
-    debugger;
     dateArr[data1[k].bce03.split(',')[1]] = [];
     let arrList = data1[k].list
     for (let g = 0; g < arrList.length; g++) {
@@ -124,12 +124,13 @@ export const calculatingDate = (type, data1, _this) => {
         dateArr[data1[k].bce03.split(',')[1]].push(key);
       }
     }
-
-
   }
+  var d2 = new Date();
+  var x = d2 - d1;
+  console.log("用时" + x)
   let j = -1
 
-  for (var i = nowDayOfWeek; i <= nowDate; i++) {
+  for (let i = nowDayOfWeek; i <= nowDate; i++) {
     j++
     if (type === 2) {
       $jsonTime = getDateStr(j, true)
@@ -147,7 +148,7 @@ export const calculatingDate = (type, data1, _this) => {
       align: 'center',
       width: width,
       render: (h, params) => {
-        debugger
+
         return h('div', {
           attrs: {
             class: 'subCol'
@@ -158,16 +159,19 @@ export const calculatingDate = (type, data1, _this) => {
               'height': '90px'
             }
           }, data1[params.index].list.map(item => {
-            debugger
             if (dateArr[params.row.bce03.split(',')[1]].indexOf(jsonTime.time) > -1 && item[0][jsonTime.time]) {
               indexItem = 0
               params.row.list.filter((item, index) => {
                 if (item[0] && Object.keys(item[0]).indexOf(jsonTime.time) > -1) {
-                  debugger
                   indexItem++
                 }
               })
               let jsonParams = item[0][jsonTime.time].split(',')
+              if (jsonParams[3] != 'null') {
+                _this.TooltipFlag = false
+              } else {
+                _this.TooltipFlag = true
+              }
               return h('Tooltip', {
                 'style': {
                   'background': jsonParams[3],
@@ -181,7 +185,8 @@ export const calculatingDate = (type, data1, _this) => {
                 props: {
                   placement: 'right',
                   theme: "light",
-                  transfer: true
+                  transfer: true,
+                  disabled: _this.TooltipFlag
                 },
                 on: {
                   on: {
@@ -214,7 +219,7 @@ export const calculatingDate = (type, data1, _this) => {
                     }, '诊室:'),
                     h('span', {
                       slot: 'content',
-                    }, jsonParams[5])
+                    }, jsonParams[5] == 'null' ? '' : jsonParams[5])
                   ]),
                   h('p', [
                     h('span', {
@@ -272,7 +277,7 @@ export const calculatingDate = (type, data1, _this) => {
                     },
                     on: {
                       click: () => {
-                        _this.show(params, 1, TimeJson)
+                        _this.removeWork(jsonParams[2])
                       }
                     }
                   }, '删除'),
@@ -340,7 +345,6 @@ export const getDateStr = (dayCount, flag) => { // daycount 天数   flag  下�
   jsonDate.date = m.toString() + '-' + d.toString() // 天
   jsonDate.week = weekJson[w] // 周
   jsonDate.year = y + '-' + jsonDate.date // 年
-  console.log(jsonDate)
   return jsonDate
 }
 
@@ -355,4 +359,16 @@ export const setlastDay = (num) => { // 计算下周
     var MondayTime = nowTime + (parseFloat(num) - day) * oneDayTime + 86400000 * 7 // 下周天
   }
   return MondayTime
+}
+
+export const getTime = (n) => {
+
+  var now = new Date();
+  var year = now.getFullYear();
+  var month = now.getMonth() + 1;
+  var day = now.getDay(); //返回星期几的某一天;
+  n = day == 0 ? n + 6 : n + (day - 1)
+  now.setDate(now.getDate() - n);
+  var date = now.getDate();
+  return date;
 }
