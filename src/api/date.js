@@ -115,7 +115,6 @@ export const calculatingDate = (type, data1, _this) => {
 
   var $jsonTime = ''
   let dateArr = {};
-  var d1 = new Date();
   for (let k = 0; k < data1.length; k++) { //计算当前列 是否有排班
     dateArr[data1[k].bce03.split(',')[1]] = [];
     let arrList = data1[k].list
@@ -125,11 +124,7 @@ export const calculatingDate = (type, data1, _this) => {
       }
     }
   }
-  var d2 = new Date();
-  var x = d2 - d1;
-  console.log("用时" + x)
   let j = -1
-
   for (let i = nowDayOfWeek; i <= nowDate; i++) {
     j++
     if (type === 2) {
@@ -159,6 +154,7 @@ export const calculatingDate = (type, data1, _this) => {
               'height': '90px'
             }
           }, data1[params.index].list.map(item => {
+
             if (dateArr[params.row.bce03.split(',')[1]].indexOf(jsonTime.time) > -1 && item[0][jsonTime.time]) {
               indexItem = 0
               params.row.list.filter((item, index) => {
@@ -167,37 +163,8 @@ export const calculatingDate = (type, data1, _this) => {
                 }
               })
               let jsonParams = item[0][jsonTime.time].split(',')
-              if (jsonParams[3] != 'null') {
-                _this.TooltipFlag = false
-              } else {
-                _this.TooltipFlag = true
-              }
-              return h('Tooltip', {
-                'style': {
-                  'background': jsonParams[3],
-                  'height': 'calc(100% / ' + indexItem + ')',
-                  'textAlign': 'center',
-                  'lineHeight': 90 / indexItem + 'px',
-                  'cursor': 'pointer',
-                  'width': '100%'
-                },
-
-                props: {
-                  placement: 'right',
-                  theme: "light",
-                  transfer: true,
-                  disabled: _this.TooltipFlag
-                },
-                on: {
-                  on: {
-                    click: () => {
-                      _this.show(params, 2, jsonTime.year, jsonParams[2], jsonParams[3])
-                    },
-
-                  }
-                }
-
-              }, [
+              let component = 'Tooltip'
+              let children = [
                 h('div', {
                   slot: 'content',
                   style: {
@@ -281,13 +248,37 @@ export const calculatingDate = (type, data1, _this) => {
                       }
                     }
                   }, '删除'),
-                  h('span', {
-                    style: {
-
-                    },
-                  }, jsonParams[0]),
+                  h('span', jsonParams[0]),
                 ])
-              ], jsonParams[0])
+              ]
+              if (jsonParams[3] == 'null') {
+                component = 'div'
+                children = [h('span', jsonParams[0])]
+              }
+              return h(component, {
+                style: {
+                  'background': jsonParams[3],
+                  'height': 'calc(100% / ' + indexItem + ')',
+                  'textAlign': 'center',
+                  'lineHeight': 90 / indexItem + 'px',
+                  'cursor': 'pointer',
+                  'width': '100%'
+                },
+                key: jsonParams[2],
+                props: {
+                  placement: 'right',
+                  theme: "light",
+                  transfer: true,
+                  // disabled: _this.TooltipFlag
+                },
+                on: {
+                  click: () => {
+                    _this.show(params, 2, jsonTime.year, jsonParams[2], jsonParams[3])
+                  },
+
+                }
+
+              }, children)
             } else if (dateArr[params.row.bce03.split(',')[1]].indexOf(jsonTime.time) === -1) {
               return h('div', {
                 'style': {

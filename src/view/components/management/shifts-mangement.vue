@@ -43,7 +43,7 @@
               <Col span="9">
                 <FormItem>
                   <Button type="primary" icon="ios-search" @click="searchTabel">查询</Button>
-                  <Checkbox>仅显示有排班的</Checkbox>
+                  <Checkbox v-model="showschedules" @on-change="showschedulesChange">仅显示有排班的</Checkbox>
                 </FormItem>
               </Col>
             </Form>
@@ -59,11 +59,11 @@
         <Tabs :animated="false" @on-click="handleTab">
           <TabPane label="本周">
             <Table border :columns="columns1" :data="data1" disabled-hover :loading="tabelloading"></Table>
-            <Page :total="total" :page-size="5" show-total @on-change="changePage" />
+            <Page :total="total" :page-size="5" :current="curr" show-total @on-change="changePage" />
           </TabPane>
           <TabPane label="下周">
             <Table border :columns="columns2" :data="data2" disabled-hover :loading="tabelloading"></Table>
-            <Page :total="total" :page-size="5" show-total @on-change="changePage" />
+            <Page :total="total" :current="curr" :page-size="5" show-total @on-change="changePage" />
           </TabPane>
           <TabPane label="本月">
             <Table
@@ -74,7 +74,7 @@
               ref="table"
               :loading="tabelloading"
             ></Table>
-            <Page :total="total" :page-size="5" show-total @on-change="changePage" />
+            <Page :total="total" :current="curr" :page-size="5" show-total @on-change="changePage" />
           </TabPane>
           <TabPane label="7天内">
             <Table
@@ -96,7 +96,7 @@
               ref="table"
               :loading="tabelloading"
             ></Table>
-            <Page :total="total" :page-size="5" show-total @on-change="changePage" />
+            <Page :total="total" :current="curr" :page-size="5" show-total @on-change="changePage" />
           </TabPane>
           <TabPane label="30天内">
             <Table
@@ -107,7 +107,7 @@
               ref="table"
               :loading="tabelloading"
             ></Table>
-            <Page :total="total" :page-size="5" show-total @on-change="changePage" />
+            <Page :total="total" :current="curr" :page-size="5" show-total @on-change="changePage" />
           </TabPane>
         </Tabs>
       </Content>
@@ -228,19 +228,16 @@
             </Row>
             <Row>
               <Col span="12">
-                <FormItem label="限号数">
-                  <InputNumber clearable v-model="shiftformdata[tab-1].zaa12" style="width:100%" />
-                </FormItem>
-              </Col>
-              <Col span="12">
                 <FormItem label="限约数">
                   <InputNumber clearable v-model="shiftformdata[tab-1].zaa11" style="width:100%" />
                 </FormItem>
               </Col>
+              <Col span="12">
+                <FormItem label="备注">
+                  <Input clearable v-model="shiftformdata[tab-1].zaa09" />
+                </FormItem>
+              </Col>
             </Row>
-            <FormItem label="备注">
-              <Input clearable v-model="shiftformdata[tab-1].zaa09" />
-            </FormItem>
           </Form>
         </TabPane>
         <Button type="primary" @click="handleTabsAdd" slot="extra">新增</Button>
@@ -251,10 +248,16 @@
       </div>
     </Modal>
     <Modal title="批量排班" v-model="batchschedu" width="650" style :mask-closable="false">
-      <Form :label-width="100" style="padding-right:30px;overflow:auto;height:400px" ref>
+      <Form
+        :label-width="100"
+        style="padding-right:30px;overflow:auto;height:400px"
+        ref="batchDat[0]"
+        :model="batchDat[0]"
+        :rules="ruleValidate"
+      >
         <Row>
           <i-Col span="12">
-            <FormItem label="科室">
+            <FormItem label="科室" prop="bck01">
               <Select clearable @on-change="selectionScheduling" v-model="batchDat[0].bck01">
                 <Option
                   v-for="item in DepartmentList"
@@ -315,7 +318,7 @@
                 type="time"
                 placeholder="开始时间"
                 v-model="batchDat[0].zaa07"
-                :transfer="true"
+                :clearable="false"
               ></TimePicker>
             </FormItem>
           </Col>
@@ -325,7 +328,7 @@
                 type="time"
                 placeholder="结束时间"
                 v-model="batchDat[0].zaa08"
-                :transfer="true"
+                :clearable="false"
               ></TimePicker>
             </FormItem>
           </Col>
@@ -333,8 +336,15 @@
 
         <Row>
           <i-Col span="12">
-            <FormItem label="限号数">
-              <InputNumber clearable v-model="batchDat[0].zaa12" style="width:100%" />
+            <FormItem label="是否生成号源">
+              <Select v-model="isSource">
+                <Option
+                  v-for="item in isSourceArr"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                ></Option>
+              </Select>
             </FormItem>
           </i-Col>
           <i-Col span="12">
@@ -369,6 +379,7 @@
                 placeholder="开始日期"
                 v-model="batchDatbegindate"
                 :options="optionsBegindate"
+                :transfer="true"
               ></DatePicker>
             </FormItem>
           </Col>
@@ -379,6 +390,7 @@
                 placeholder="结束日期"
                 v-model="batchDatendDate"
                 :options="optionsdendDate"
+                :transfer="true"
               ></DatePicker>
             </FormItem>
           </Col>
@@ -424,7 +436,7 @@
       </Form>
       <div slot="footer">
         <Button type="primary" @click="batchSvae" :loading="isBtnLoading">保存</Button>
-        <Button style="margin-left: 8px" @click="cancel(1)">取消</Button>
+        <Button style="margin-left: 8px" @click="batchClear()">取消</Button>
       </div>
     </Modal>
     <Modal title="批量删除" v-model="batchdeletion" width="650" style :mask-closable="false">
@@ -502,7 +514,7 @@
             :data="delmockData"
             :target-keys="targetKeys2"
             :render-format="render2"
-            @on-change="handleChange3"
+            @on-change="handleChange2"
             :titles="titleArr"
             :on-selected-change="selectedchange"
           ></Transfer>
@@ -510,7 +522,7 @@
       </Form>
       <div slot="footer">
         <Button type="primary" @click="delSvae" :loading="isBtnLoading">保存</Button>
-        <Button style="margin-left: 8px" @click="batchdeletion=false">取消</Button>
+        <Button style="margin-left: 8px" @click="delclear">取消</Button>
       </div>
     </Modal>
 
@@ -600,7 +612,7 @@
       </Form>
       <div slot="footer">
         <Button type="primary" @click="delSvae" :loading="isBtnLoading">保存</Button>
-        <Button style="margin-left: 8px" @click>取消</Button>
+        <Button style="margin-left: 8px" @click="duplicatescheduling=false">取消</Button>
       </div>
     </Modal>
   </div>
@@ -609,9 +621,19 @@
 import "./index.less";
 import { axiosFunc } from "@/api/data";
 import { calculatingDate, getDateStr, setlastDay, getTime } from "@/api/date";
+import { loadingShow, loadingHide } from "@/api/loading";
 export default {
   data() {
     return {
+      ruleValidate: {
+        bcak01: [
+          {
+            required: true,
+            message: "The name cannot be empty",
+            trigger: "blur"
+          }
+        ]
+      },
       columns1: [], //本周
       columns2: [], //下周
       columns3: [], //本月
@@ -619,6 +641,7 @@ export default {
       columns5: [], //14天内
       columns6: [], //30天内
       titleArr: ["全部人员", "已选人员"],
+      showschedules: false,
       data1: [],
       data2: [],
       data3: [],
@@ -636,6 +659,8 @@ export default {
       departModel: false,
       batchschedu: false,
       batchdeletion: false, //批量删除
+      isSource: 5,
+      isSourceArr: [{ label: "是", value: 5 }, { label: "否", value: 6 }],
       duplicatescheduling: false, //复制排班
       tabs: 1,
       personnelList: "",
@@ -738,7 +763,8 @@ export default {
       },
       tabelIndex: 1,
       imgIndex: "", // 当前显示的删除图标编号,
-      TooltipFlag: false //左侧悬浮框显示隐藏
+      TooltipFlag: false, //左侧悬浮框显示隐藏
+      tableType: 0
     };
   },
   methods: {
@@ -839,7 +865,8 @@ export default {
           startDate: this.startDate,
           endDate: this.endDate,
           page: 1,
-          rows: 500
+          rows: 500,
+          type: this.tableType
         }
       ).then(res => {
         this.tabelloading = false;
@@ -933,11 +960,13 @@ export default {
       this.handleTab(0);
     },
     show(params, flag, timeJson, zaa01, $color, $item) {
+      debugger;
       this.tabs = 1;
       this.tabeNum = 0;
       this.tabName = "name1";
       if (zaa01 && $color === "null") {
         this.showType = 4;
+        loadingShow(this, "保存中");
         this.promiseShifts(
           "/api/rateweb/cloud/SysSchedule/saveSchedule",
           "post",
@@ -956,6 +985,7 @@ export default {
               className: "vertical-center-modal"
             });
           }
+          loadingHide(this);
         });
       } else {
         this.shiftformdata = [];
@@ -1032,10 +1062,18 @@ export default {
         }
       }
     },
-
+    showschedulesChange(val) {
+      // 仅显示有排班的
+      debugger;
+      if (val) {
+        this.tableType = 1;
+        this.tableInit();
+      } else {
+        this.tableType = 0;
+      }
+    },
     handleTabsAdd() {
       // 点击新增tabs 动态添加保存数据
-
       if (this.zaa05List.length <= this.tabs) {
         return false;
       }
@@ -1129,6 +1167,7 @@ export default {
         }
       });
     },
+
     dupScheduling(val) {
       // 批量删除排班多选
       this.promiseShifts(
@@ -1201,8 +1240,8 @@ export default {
       this.delbatchDat.userIds = newTargetKeys;
       this.dupmockData.filter((item, index) => {
         if (newTargetKeys.indexOf(item.key) > -1) {
-          this.newTargetKeysArr2.push(item.key);
-          this.delbatchDat.userIds = this.newTargetKeysArr3;
+          this.newTargetKeysArr3.push(item.key);
+          this.delbatchDat.userIds = this.newTargetKeysArr2;
         }
       });
     },
@@ -1259,8 +1298,42 @@ export default {
       this.tabeNum = parseFloat(name.split("name")[1]) - 1;
     },
     save() {
-      //排班
+      //保存排班
+      for (let i = 0; i < this.shiftformdata.length; i++) {
+        if (!this.shiftformdata[i].zaa05) {
+          return this.$Message.warning({
+            content: "班次配置" + (i + 1) + "班次不能为空",
+            duration: 2
+          });
+        }
+        if (!this.shiftformdata[i].bck03) {
+          return this.$Message.warning({
+            content: "班次配置" + (i + 1) + "科室不能为空",
+            duration: 2
+          });
+        }
+        if (!this.shiftformdata[i].zaa15) {
+          return this.$Message.warning({
+            content: "班次配置" + (i + 1) + "时间间隔不能为空",
+            duration: 2
+          });
+        }
+
+        if (!this.shiftformdata[i].zaa11) {
+          return this.$Message.warning({
+            content: "班次配置" + (i + 1) + "限约数不能为空",
+            duration: 2
+          });
+        }
+        if (!this.shiftformdata[i].bcb01) {
+          return this.$Message.warning({
+            content: "班次配置" + (i + 1) + "号别不能为空",
+            duration: 2
+          });
+        }
+      }
       this.isBtnLoading = true;
+      loadingShow(this, "保存中");
       this.promiseShifts(
         "/api/rateweb/cloud/SysSchedule/saveSchedule",
         "post",
@@ -1289,17 +1362,19 @@ export default {
           });
         }
         this.isBtnLoading = false;
+        loadingHide(this);
       });
     },
     batchSvae() {
       // 批量排班
       this.isBtnLoading = true;
+
       this.promiseShifts(
         "/api/rateweb/cloud/SysSchedule/saveSchedule",
         "post",
         {
           commformStr: JSON.stringify(this.batchDat),
-          type: 5,
+          type: this.isSource,
           beginDate: this.$moment(this.batchDatbegindate).format(
             "YYYY-MM-DD 00:00:00"
           ),
@@ -1310,10 +1385,12 @@ export default {
         },
         true
       ).then(res => {
+        loadingShow(this, "保存中");
         if (res.status === 200 && res.data.result === "SUCCESS") {
           this.curr = 1;
           this.tableInit();
           this.batchschedu = false;
+          this.batchClear();
           this.$Message.success({
             content: "保存成功",
             duration: 2
@@ -1326,11 +1403,29 @@ export default {
           });
         }
         this.isBtnLoading = false;
+        loadingHide(this);
       });
+    },
+    batchClear() {
+      debugger;
+      for (var item in this.batchDat[0]) {
+        this.batchDat[0][item] = "";
+      }
+      this.batchDat[0].zaa12 = 0;
+      this.batchDat[0].zaa11 = 0;
+      this.batchDat[0].zaa15 = 0;
+      this.batchDat[0].wxenabled = "0";
+      this.batchDat[0].zaa13 = "0";
+      this.batchDatbegindate = "";
+      this.batchDatendDate = "";
+      this.batchschedu = false;
+      this.mockData = [];
+      this.newTargetKeysArr = [];
+      this.isSource = 5;
     },
     delSvae() {
       //批量删除保存
-      // this.isBtnLoading = true;
+      this.isBtnLoading = true;
       debugger;
       if (this.checkAllGroup.length == 7) {
         this.delbatchDat.weekNum = "";
@@ -1344,6 +1439,7 @@ export default {
       this.delbatchDat.endDate = this.$moment(this.delbatchDat.endDate).format(
         "YYYY-MM-DD"
       );
+      loadingShow(this, "保存中");
       this.promiseShifts(
         "/api/rateweb/cloud/SysSchedule/removeBatchSourceData",
         "post",
@@ -1351,7 +1447,6 @@ export default {
         true
       ).then(res => {
         if (res.status === 200 && res.data.result === "SUCCESS") {
-          this.batchdeletion = false;
           this.$Message.success({
             content: res.data.resultMsg,
             duration: 2
@@ -1359,6 +1454,7 @@ export default {
 
           this.curr = 1;
           this.tableInit();
+          this.delclear();
         } else {
           this.$Modal.error({
             title: "信息",
@@ -1367,7 +1463,18 @@ export default {
           });
         }
         this.isBtnLoading = false;
+        loadingHide(this);
       });
+    },
+    delclear() {
+      this.batchdeletion = false;
+      for (let item in this.delbatchDat) {
+        this.delbatchDat[item] = "";
+      }
+      this.delbatchDat.userIds = [];
+      this.delmockData = [];
+      this.checkAll = false;
+      this.checkAllGroup = [];
     },
     cancel(index) {
       if (index === 1) {
