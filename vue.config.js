@@ -47,8 +47,6 @@ module.exports = {
       // 匹配代理的url
       '/api': {
         // 目标服务器地址
-        // target: 'http://192.168.1.18:8082',
-        // target: 'http://192.168.1.191:19999',
         target: 'http://192.168.1.189:8080',
         // 路径重写
         pathRewrite: {

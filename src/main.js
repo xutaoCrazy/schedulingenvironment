@@ -19,7 +19,10 @@ import '@/assets/icons/iconfont.css'
 import TreeTable from 'tree-table-vue'
 import VOrgTree from 'v-org-tree'
 import 'v-org-tree/dist/v-org-tree.css'
-Vue.prototype.$moment = moment; //赋值使用
+import { loadingShow, loadingHide } from "@/api/loading"; //加载中
+Vue.prototype.$moment = moment; //格式化时间
+Vue.prototype.loadingShow = loadingShow; //加载中显示
+Vue.prototype.loadingHide = loadingHide; //加载中隐藏
 // moment.locale('zh-cn');//需要汉化
 // 实际打包时应该不引入mock
 /* eslint-disable */

@@ -24,3 +24,11 @@ export const axiosFunc = (url, type, params, flag) => {
     })
   }
 }
+export const promiseShifts = (url, type, params, flag) => {
+  //请求的参数不一样；
+  let data = new Promise((resolve, reject) => {
+    let save = axiosFunc(url, type, params, flag);
+    resolve(save);
+  });
+  return data;
+}

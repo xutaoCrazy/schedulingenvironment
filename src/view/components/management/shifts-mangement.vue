@@ -29,7 +29,13 @@
               </i-Col>
               <i-Col span="5">
                 <FormItem label="人员">
-                  <Select :label-in-value="true" filterable clearable @on-change="selectPersonnel">
+                  <Select
+                    :label-in-value="true"
+                    filterable
+                    clearable
+                    @on-change="selectPersonnel"
+                    @on-clear="selectPeronClear"
+                  >
                     <Option
                       v-for="item in personnelList"
                       :value="item.bce01"
@@ -162,7 +168,7 @@
             <Row>
               <i-Col span="12">
                 <FormItem label="科室">
-                  <Select v-model="shiftformdata[tab-1].bck03" @on-change="selectBck01" clearable>
+                  <Select v-model="shiftformdata[tab-1].bck01" @on-change="selectBck01" clearable>
                     <Option
                       v-for="item in DepartmentList"
                       :value="item.bck01"
@@ -430,13 +436,12 @@
             :render-format="render1"
             @on-change="handleChange1"
             :titles="titleArr"
-            :on-selected-change="selectedchange"
           ></Transfer>
         </FormItem>
       </Form>
       <div slot="footer">
         <Button type="primary" @click="batchSvae" :loading="isBtnLoading">保存</Button>
-        <Button style="margin-left: 8px" @click="batchClear()">取消</Button>
+        <Button style="margin-left: 8px" @click="batchClear">取消</Button>
       </div>
     </Modal>
     <Modal title="批量删除" v-model="batchdeletion" width="650" style :mask-closable="false">
@@ -516,7 +521,6 @@
             :render-format="render2"
             @on-change="handleChange2"
             :titles="titleArr"
-            :on-selected-change="selectedchange"
           ></Transfer>
         </FormItem>
       </Form>
@@ -561,7 +565,6 @@
             :render-format="render3"
             @on-change="handleChange3"
             :titles="titleArr"
-            :on-selected-change="selectedchange"
           ></Transfer>
         </FormItem>
         <Row>
@@ -619,9 +622,29 @@
 </template>
 <script>
 import "./index.less";
-import { axiosFunc } from "@/api/data";
-import { calculatingDate, getDateStr, setlastDay, getTime } from "@/api/date";
-import { loadingShow, loadingHide } from "@/api/loading";
+import { axiosFunc, promiseShifts } from "@/api/data";
+import { calculatingDate, getDateStr, setlastDay, getTime } from "@/api/date"; //获取时间
+import {
+  tableInit,
+  getpersonnelPageList,
+  selectDoctor
+} from "@/common/loadTabel"; //加载表格
+import {
+  shiftformdataclear,
+  bathClearReset,
+  delclearReset,
+  cancelReset
+} from "@/common/resetFields"; //清空
+import { scheduShow } from "@/common/schedulmode"; //弹窗
+import { tabWeek, shiftDeletion } from "@/common/week"; //时间
+import {
+  singleShiftsCheduling,
+  batchSchedulingPreservation,
+  deleteScheduling,
+  saveTabelPerson,
+  singleDeletion
+} from "@/common/save"; //保存
+
 export default {
   data() {
     return {
@@ -674,7 +697,7 @@ export default {
       total: 0,
       pageSize: 5,
       curr: 1,
-      shiftformdata: this.shiftformdataclear(),
+      shiftformdata: shiftformdataclear(this),
       batchDat: [
         {
           zaa05: "",
@@ -768,29 +791,6 @@ export default {
     };
   },
   methods: {
-    shiftformdataclear() {
-      let arr = [
-        {
-          zaa05: "",
-          zaa07: "",
-          zaa08: "",
-          bas02: "",
-          bck03: "",
-          bcb01: "",
-          zaa12: 0,
-          zaa11: 0,
-          zaa09: "",
-          wxenabled: "0",
-          zaa13: "0",
-          zaa15: 0,
-          zaa01: null,
-          bce01: this.bce01Name,
-          bce03: this.bce03Name,
-          bck01: this.Department
-        }
-      ];
-      return arr;
-    },
     handleCheckAll() {
       //CheckBox 全选反选
       debugger;
@@ -801,9 +801,13 @@ export default {
         this.checkAllGroup = [];
       }
     },
+    selectPeronClear() {
+      //仅显示当前排班
+      this.curr = 1;
+      getpersonnelPageList(this);
+    },
     checkAllGroupChange(data) {
       //点击单个CheckBox 选择
-
       if (data.length === 7) {
         this.checkAll = true;
       } else {
@@ -811,266 +815,28 @@ export default {
       }
     },
     radioAllGroupChange(data) {
-      debugger;
-
-      let weekOfday = parseInt(this.$moment().format("d")); // 计算今天是这周第几天 周日为一周中的第一天
-      switch (data) {
-        case "1": //本周
-          this.dupbatchDat.startDate = this.$moment(
-            this.$moment().subtract(weekOfday, "days") + 86400000
-          ).format("YYYY-MM-DD"); // 周一日期
-          this.dupbatchDat.endDate = this.$moment(
-            this.$moment().add(7 - weekOfday - 1, "days") + 86400000
-          ).format("YYYY-MM-DD"); // 周日日期
-
-          break;
-        case "2": //上周
-          this.dupbatchDat.startDate = this.$moment(
-            this.$moment().subtract(weekOfday + 7, "days") + 86400000
-          ).format("YYYY-MM-DD"); // 周一日期
-          this.dupbatchDat.endDate = this.$moment(
-            this.$moment().subtract(weekOfday + 1, "days") + 86400000
-          ).format("YYYY-MM-DD"); // 周日日期
-
-          break;
-        case "3": //本月
-          this.dupbatchDat.startDate =
-            this.$moment()
-              .add("month", 0)
-              .format("YYYY-MM") + "-01";
-          this.dupbatchDat.endDate = this.$moment(this.dupbatchDat.startDate)
-            .add("month", 1)
-            .add("days", -1)
-            .format("YYYY-MM-DD");
-
-          break;
-      }
+      shiftDeletion(this, data);
     },
-    promiseShifts(url, type, params, flag) {
-      let data = new Promise((resolve, reject) => {
-        let save = axiosFunc(url, type, params, flag);
-        resolve(save);
-      });
-      return data;
-    },
-    tableInit() {
-      // 加载表格数据
-      this.tabelloading = true;
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getSearchScheduRecordsList",
-        "get",
-        {
-          bck01: this.Department,
-          bce01: this.bce01Arr.join(","),
-          startDate: this.startDate,
-          endDate: this.endDate,
-          page: 1,
-          rows: 500,
-          type: this.tableType
-        }
-      ).then(res => {
-        this.tabelloading = false;
-        if (res.status === 200) {
-          switch (this.tabindex) {
-            case 1:
-              this.data1 = res.data.list;
-              this.columns1 = calculatingDate(1, this.data1, this);
-              break;
-            case 2:
-              this.data2 = res.data.list;
-              this.columns2 = calculatingDate(2, this.data2, this);
-              break;
-            case 3:
-              this.data3 = res.data.list;
-              this.columns3 = calculatingDate(3, this.data3, this);
-              break;
-            case 4:
-              this.data4 = res.data.list;
-              this.columns4 = calculatingDate(4, this.data4, this);
-              break;
-            case 5:
-              this.data5 = res.data.list;
-              this.columns5 = calculatingDate(5, this.data5, this);
-              break;
-            case 6:
-              this.data6 = res.data.list;
-              this.columns6 = calculatingDate(6, this.data6, this);
-              break;
-            case 7:
-              this.data7 = res.data.list;
-              this.columns7 = calculatingDate(7, this.data7, this);
-              break;
-            case 8:
-              this.data8 = res.data.list;
-              this.columns8 = calculatingDate(8, this.data8, this);
-              break;
-          }
-        }
-      });
-    },
-    selectDoctor() {
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getBusinessList",
-        "get",
-        {}
-      ).then(res => {
-        if (res.status === 200) {
-          this.docterList = res.data;
-        }
-      });
-      this.promiseShifts("/api/rateweb/cloud/SysSchedule/getBck1List", "get", {
-        keyWord: "",
-        page: 1,
-        rows: 30
-      }).then(res => {
-        // 科室
-
-        if (res.status === 200 && res.data.result === "SUCCESS") {
-          this.DepartmentList = res.data.list;
-        }
-      });
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getShiftsList",
-        "get",
-        {}
-      ).then(res => {
-        // 班次
-
-        if (res.status === 200 && res.data) {
-          this.zaa05List = res.data;
-        }
-      });
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getCategory",
-        "get",
-        {}
-      ).then(res => {
-        // 挂号号别
-
-        if (res.status === 200) {
-          this.bcb01List = res.data;
-        }
-      });
-    },
-
     init() {
-      this.selectDoctor();
+      selectDoctor(this);
       let $json = calculatingDate(1, "", this);
       this.columns1 = this.columns1.concat($json);
       this.handleTab(0);
     },
     show(params, flag, timeJson, zaa01, $color, $item) {
-      debugger;
-      this.tabs = 1;
-      this.tabeNum = 0;
-      this.tabName = "name1";
-      if (zaa01 && $color === "null") {
-        this.showType = 4;
-        loadingShow(this, "保存中");
-        this.promiseShifts(
-          "/api/rateweb/cloud/SysSchedule/saveSchedule",
-          "post",
-          { zaa01: zaa01, type: this.showType },
-          true
-        ).then(res => {
-          if (res.status === 200 && res.data.result === "SUCCESS") {
-            this.tableInit();
-            this.$Notice.success({
-              title: "保存排班成功"
-            });
-          } else {
-            this.$Modal.error({
-              title: "信息",
-              content: res.data.resultMsg,
-              className: "vertical-center-modal"
-            });
-          }
-          loadingHide(this);
-        });
-      } else {
-        this.shiftformdata = [];
-        this.shiftformdata.push({
-          zaa05: "",
-          zaa07: "",
-          zaa08: "",
-          bas02: "",
-          bck03: "",
-          bcb01: "",
-          zaa12: 0,
-          zaa11: 0,
-          zaa09: "",
-          wxenabled: "0",
-          zaa13: "0",
-          zaa15: 0,
-          bce01: this.bce01Name,
-          bce03: this.bce03Name,
-          bck01: this.Department
-        });
-        this.shiftformdata[0].bce01 = parseFloat(
-          params.row.bce03.split(",")[1]
-        );
-        this.shiftformdata[0].bce03 = params.row.bce03.split(",")[0];
-        this.bce01Name = parseFloat(params.row.bce03.split(",")[1]);
-        this.bce03Name = params.row.bce03.split(",")[0];
-        this.departModel = true;
-        this.showType = flag;
-
-        switch (flag) {
-          case 1:
-            this.showDate = false;
-            this.savebeginDate = timeJson.sartDate;
-            this.saveEndDate = timeJson.endDate;
-            break;
-          case 2:
-            this.showDate = true;
-            this.savebeginDate = timeJson;
-            this.saveEndDate = timeJson;
-            this.sameday = timeJson;
-            break;
-        }
-        if (zaa01 && $color) {
-          this.promiseShifts(
-            "/api/rateweb/cloud/SysSchedule/getOneScheduById",
-            "get",
-            { id: zaa01 }
-          ).then(res => {
-            // 挂号号别
-
-            this.showType = 3;
-            if (res.status === 200) {
-              let formData = this.shiftformdata[0];
-              let $data = res.data;
-              formData.zaa05 = $data.zaa05;
-              formData.zaa07 = $data.zaa07.split(" ")[1];
-              formData.zaa08 = $data.zaa08.split(" ")[1];
-              formData.bas02 = $data.bas02;
-              formData.bck03 = $data.bck01;
-              formData.bcb01 = $data.bcb01;
-              formData.zaa12 = $data.zaa12;
-              formData.zaa11 = $data.zaa11;
-              formData.zaa09 = $data.zaa09;
-              formData.wxenabled = $data.wxenabled.toString();
-              formData.zaa13 = $data.zaa13.toString();
-              formData.zaa01 = $data.zaa01;
-              formData.bce01 = $data.bce01;
-              formData.bce03 = $data.bce03;
-              formData.bck01 = $data.bck01;
-              formData.zaa15 = $data.zaa15;
-              this.selectBck01($data.bck01, $data.bas02);
-            }
-          });
-        }
-      }
+      //打开弹窗
+      scheduShow(params, flag, timeJson, zaa01, $color, $item, this);
     },
     showschedulesChange(val) {
       // 仅显示有排班的
       debugger;
+      this.curr = 1;
       if (val) {
         this.tableType = 1;
-        this.tableInit();
       } else {
         this.tableType = 0;
       }
+      getpersonnelPageList(this);
     },
     handleTabsAdd() {
       // 点击新增tabs 动态添加保存数据
@@ -1089,36 +855,36 @@ export default {
         zaa09: "",
         wxenabled: "0",
         zaa13: "0",
+        zaa15: 0,
+        zaa01: null,
         bce01: this.bce01Name,
         bce03: this.bce03Name,
-        bck01: this.Department,
-        zaa15: 0
+        bck01: this.Department
       });
+
       this.tabs++;
     },
     selectDepartment(flag, $bck01) {
       // 选择科室、职务回填人员
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getPersonnelList",
-        "get",
-        { id: this.Department, aaa01: this.docter }
-      ).then(res => {
+      promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
+        id: this.Department,
+        aaa01: this.docter
+      }).then(res => {
         if (res.status === 200) {
           this.personnelList = res.data;
         }
       });
       this.curr = 1;
       this.shiftformdata[0].bck01 = this.Department;
-      this.getpersonnelPageList();
+      getpersonnelPageList(this);
     },
     selectionScheduling(val) {
       // 批量排班多选
 
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getPersonnelList",
-        "get",
-        { id: this.batchDat[0].bck01, aaa01: this.batchDat[0].aaa01 }
-      ).then(res => {
+      promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
+        id: this.batchDat[0].bck01,
+        aaa01: this.batchDat[0].aaa01
+      }).then(res => {
         if (res.status === 200 && res.data.length) {
           this.mockData = [];
           this.targetKeys1 = [];
@@ -1131,7 +897,7 @@ export default {
           }
         }
       });
-      this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+      promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
         if (res.status === 200) {
@@ -1142,11 +908,10 @@ export default {
     delScheduling(val) {
       // 批量删除排班多选
 
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getPersonnelList",
-        "get",
-        { id: this.delbatchDat.bck01, aaa01: this.delbatchDat.aaa01 }
-      ).then(res => {
+      promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
+        id: this.delbatchDat.bck01,
+        aaa01: this.delbatchDat.aaa01
+      }).then(res => {
         if (res.status === 200 && res.data.length) {
           this.delmockData = [];
           this.targetKeys2 = [];
@@ -1159,7 +924,7 @@ export default {
           }
         }
       });
-      this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+      promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
         if (res.status === 200) {
@@ -1170,11 +935,10 @@ export default {
 
     dupScheduling(val) {
       // 批量删除排班多选
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getPersonnelList",
-        "get",
-        { id: this.dupbatchDat.bck01, aaa01: this.dupbatchDat.aaa01 }
-      ).then(res => {
+      promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
+        id: this.dupbatchDat.bck01,
+        aaa01: this.dupbatchDat.aaa01
+      }).then(res => {
         if (res.status === 200 && res.data.length) {
           this.dupmockData = [];
           this.targetKeys3 = [];
@@ -1187,7 +951,7 @@ export default {
           }
         }
       });
-      this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+      promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
         if (res.status === 200) {
@@ -1245,30 +1009,6 @@ export default {
         }
       });
     },
-    selectedchange(sourceSelectedKeys, targetSelectedKeys) {},
-
-    getpersonnelPageList() {
-      // 加载表格
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getPersonnelPageList",
-        "get",
-        {
-          id: this.Department,
-          aaa01: this.docter,
-          page: this.curr,
-          rows: this.pageSize
-        }
-      ).then(res => {
-        if (res.status === 200 && res.data.rows != null) {
-          this.bce01Arr = [];
-          this.total = res.data.total;
-          for (let i = 0; i < res.data.rows.length; i++) {
-            this.bce01Arr.push(res.data.rows[i].bce01);
-          }
-          this.tableInit();
-        }
-      });
-    },
     getMoreParams(item, index) {
       debugger;
       // 选择班次 回填开始时间和结束时间
@@ -1282,7 +1022,7 @@ export default {
     },
     selectBck01(val, selcted) {
       // 选择科室 回填诊室
-      this.promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+      promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
         if (res.status === 200) {
@@ -1298,192 +1038,27 @@ export default {
       this.tabeNum = parseFloat(name.split("name")[1]) - 1;
     },
     save() {
-      //保存排班
-      for (let i = 0; i < this.shiftformdata.length; i++) {
-        if (!this.shiftformdata[i].zaa05) {
-          return this.$Message.warning({
-            content: "班次配置" + (i + 1) + "班次不能为空",
-            duration: 2
-          });
-        }
-        if (!this.shiftformdata[i].bck03) {
-          return this.$Message.warning({
-            content: "班次配置" + (i + 1) + "科室不能为空",
-            duration: 2
-          });
-        }
-        if (!this.shiftformdata[i].zaa15) {
-          return this.$Message.warning({
-            content: "班次配置" + (i + 1) + "时间间隔不能为空",
-            duration: 2
-          });
-        }
-
-        if (!this.shiftformdata[i].zaa11) {
-          return this.$Message.warning({
-            content: "班次配置" + (i + 1) + "限约数不能为空",
-            duration: 2
-          });
-        }
-        if (!this.shiftformdata[i].bcb01) {
-          return this.$Message.warning({
-            content: "班次配置" + (i + 1) + "号别不能为空",
-            duration: 2
-          });
-        }
-      }
-      this.isBtnLoading = true;
-      loadingShow(this, "保存中");
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/saveSchedule",
-        "post",
-        {
-          commformStr: JSON.stringify(this.shiftformdata),
-          type: this.showType,
-          beginDate: this.savebeginDate,
-          endDate: this.saveEndDate
-        },
-        true
-      ).then(res => {
-        if (res.status === 200 && res.data.result === "SUCCESS") {
-          this.shiftformdataclear();
-          this.departModel = !this.departModel;
-          this.tabs = 1;
-          this.tableInit();
-          this.$Message.success({
-            content: "保存成功",
-            duration: 2
-          });
-        } else {
-          this.$Modal.error({
-            title: "信息",
-            content: res.data.resultMsg,
-            className: "vertical-center-modal"
-          });
-        }
-        this.isBtnLoading = false;
-        loadingHide(this);
-      });
+      //单个和多个保存排班
+      singleShiftsCheduling(this);
     },
     batchSvae() {
-      // 批量排班
-      this.isBtnLoading = true;
-
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/saveSchedule",
-        "post",
-        {
-          commformStr: JSON.stringify(this.batchDat),
-          type: this.isSource,
-          beginDate: this.$moment(this.batchDatbegindate).format(
-            "YYYY-MM-DD 00:00:00"
-          ),
-          endDate: this.$moment(this.batchDatendDate).format(
-            "YYYY-MM-DD 23:59:59"
-          ),
-          userListStr: JSON.stringify(this.newTargetKeysArr)
-        },
-        true
-      ).then(res => {
-        loadingShow(this, "保存中");
-        if (res.status === 200 && res.data.result === "SUCCESS") {
-          this.curr = 1;
-          this.tableInit();
-          this.batchschedu = false;
-          this.batchClear();
-          this.$Message.success({
-            content: "保存成功",
-            duration: 2
-          });
-        } else {
-          this.$Modal.error({
-            title: "信息",
-            content: res.data.resultMsg,
-            className: "vertical-center-modal"
-          });
-        }
-        this.isBtnLoading = false;
-        loadingHide(this);
-      });
+      // 批量排班保存
+      batchSchedulingPreservation(this);
     },
     batchClear() {
-      debugger;
-      for (var item in this.batchDat[0]) {
-        this.batchDat[0][item] = "";
-      }
-      this.batchDat[0].zaa12 = 0;
-      this.batchDat[0].zaa11 = 0;
-      this.batchDat[0].zaa15 = 0;
-      this.batchDat[0].wxenabled = "0";
-      this.batchDat[0].zaa13 = "0";
-      this.batchDatbegindate = "";
-      this.batchDatendDate = "";
-      this.batchschedu = false;
-      this.mockData = [];
-      this.newTargetKeysArr = [];
-      this.isSource = 5;
+      //批量排班清空
+      bathClearReset(this);
     },
     delSvae() {
       //批量删除保存
-      this.isBtnLoading = true;
-      debugger;
-      if (this.checkAllGroup.length == 7) {
-        this.delbatchDat.weekNum = "";
-      } else {
-        this.delbatchDat.weekNum = this.checkAllGroup.join(",");
-      }
-      this.delbatchDat.userIds = this.delbatchDat.userIds.join(",");
-      this.delbatchDat.startDate = this.$moment(
-        this.delbatchDat.startDate
-      ).format("YYYY-MM-DD");
-      this.delbatchDat.endDate = this.$moment(this.delbatchDat.endDate).format(
-        "YYYY-MM-DD"
-      );
-      loadingShow(this, "保存中");
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/removeBatchSourceData",
-        "post",
-        this.delbatchDat,
-        true
-      ).then(res => {
-        if (res.status === 200 && res.data.result === "SUCCESS") {
-          this.$Message.success({
-            content: res.data.resultMsg,
-            duration: 2
-          });
-
-          this.curr = 1;
-          this.tableInit();
-          this.delclear();
-        } else {
-          this.$Modal.error({
-            title: "信息",
-            content: res.data.resultMsg,
-            className: "vertical-center-modal"
-          });
-        }
-        this.isBtnLoading = false;
-        loadingHide(this);
-      });
+      deleteScheduling(this);
     },
     delclear() {
-      this.batchdeletion = false;
-      for (let item in this.delbatchDat) {
-        this.delbatchDat[item] = "";
-      }
-      this.delbatchDat.userIds = [];
-      this.delmockData = [];
-      this.checkAll = false;
-      this.checkAllGroup = [];
+      //批量删除清空
+      delclearReset(this);
     },
     cancel(index) {
-      if (index === 1) {
-        this.batchschedu = !this.batchschedu;
-      } else {
-        this.departModel = !this.departModel;
-        this.tabs = 1;
-        this.tabName = "name1";
-      }
+      cancelReset(this, index);
     },
     selectPersonnel(val) {
       this.bce01Name = val.value;
@@ -1491,79 +1066,25 @@ export default {
       this.bce01Arr = [];
       this.bce01Arr.push(val.value);
       this.total = 1;
-      this.tableInit();
+      tableInit(this);
     },
     searchTabel() {
-      this.tableInit();
+      tableInit(this);
     },
     handleTab(index) {
       debugger;
       // 点击tab加载时间
-      let now = new Date(); // 当前日期
-      let nowDayOfWeek = now.getDay();
-      this.tabindex = index + 1;
-      switch (index) {
-        case 0:
-          this.startDate = getDateStr(0).year + " " + "00:00:00";
-          this.endDate = getDateStr(7 - nowDayOfWeek).year + " " + "23:59:59";
-          break;
-        case 1:
-          this.startDate = getDateStr(0, true).year + " " + "00:00:00";
-          this.endDate = getDateStr(6, true).year + " " + "23:59:59";
-          break;
-        case 2:
-          var nows = new Date(); // 当前日期
-          var nowMonth = nows.getMonth() + 1; // 当前月
-          var nowYear = nows.getYear(); // 当前年
-          nowYear += nowYear < 2000 ? 1900 : 0;
-          var dateLen = new Date(nowYear, nowMonth, 0).getDate();
-          this.startDate = getDateStr(0, false).year + " " + "00:00:00";
-          this.endDate = getDateStr(dateLen - 1, false).year + " " + "23:59:59";
-          break;
-        case 3:
-          this.startDate = getDateStr().year + " " + "00:00:00";
-          this.endDate = getDateStr(6).year + " " + "23:59:59";
-          break;
-        case 4:
-          this.startDate = getDateStr().year + " " + "00:00:00";
-          this.endDate = getDateStr(13).year + " " + "23:59:59";
-          break;
-        case 5:
-          this.startDate = getDateStr().year + " " + "00:00:00";
-          this.endDate = getDateStr(29).year + " " + "23:59:59";
-          break;
-      }
-      this.tableInit();
+      tabWeek(this, index);
     },
     changePage(curr) {
       this.curr = curr;
-      this.getpersonnelPageList();
+      getpersonnelPageList(this);
     },
     removeWork(zaa01, e) {
       console.log(zaa01);
       var evt = e || window.event;
       evt.stopPropagation(); //阻止自身冒泡事件
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/removeSourceData",
-        "post",
-        {
-          id: zaa01
-        }
-      ).then(res => {
-        if (res.status === 200 && res.data.result === "SUCCESS") {
-          this.$Message.success({
-            content: "删除成功",
-            duration: 2
-          });
-          this.tableInit();
-        } else {
-          this.$Modal.error({
-            title: "信息",
-            content: res.data.resultMsg,
-            className: "vertical-center-modal"
-          });
-        }
-      });
+      singleDeletion(this, zaa01);
     }
   },
   mounted() {
