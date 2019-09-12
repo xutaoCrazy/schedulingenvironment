@@ -86,7 +86,7 @@ export const selectDoctor = (_this) => {
   promiseShifts(
     "/api/rateweb/cloud/SysSchedule/getBusinessList",
     "get", {}
-  ).then(res => {
+  ).then(res => { //职务
     if (res.status === 200) {
       _this.docterList = res.data;
     }
