@@ -581,12 +581,30 @@
         <Row>
           <Col span="12">
             <FormItem label="复制开始日期">
-              <Input placeholder readonly v-model="dupbatchDat.startDate"></Input>
+              <DatePicker
+                type="date"
+                placeholder="复制开始日期"
+                v-model="dupbatchDat.startDate"
+                format="yyyy-MM-dd"
+                :transfer="true"
+                :options="optionsBegindate"
+                @on-change="timeStartModification"
+                @on-clear="timeClear"
+              ></DatePicker>
             </FormItem>
           </Col>
           <Col span="12">
             <FormItem label="复制结束日期">
-              <Input placeholder readonly v-model="dupbatchDat.endDate"></Input>
+              <DatePicker
+                type="date"
+                placeholder="复制结束日期"
+                v-model="dupbatchDat.endDate"
+                format="yyyy-MM-dd"
+                :transfer="true"
+                :options="optionsdendDate"
+                @on-change="timeStartModification"
+                @on-clear="timeClear"
+              ></DatePicker>
             </FormItem>
           </Col>
         </Row>
@@ -596,8 +614,10 @@
               <DatePicker
                 type="date"
                 placeholder="目标开始日期"
-                v-model="delbatchDat.startDate"
-                :options="optionsBegindate"
+                v-model="delbatchDat.targetstarttime"
+                :options="optionsMubiaoBegindate"
+                @on-change="timeModification"
+                :disabled="timedis"
               ></DatePicker>
             </FormItem>
           </Col>
@@ -606,15 +626,15 @@
               <DatePicker
                 type="date"
                 placeholder="目标结束日期"
-                v-model="delbatchDat.endDate"
-                :options="optionsdendDate"
+                v-model="delbatchDat.targetendtime"
+                :disabled="true"
               ></DatePicker>
             </FormItem>
           </Col>
         </Row>
       </Form>
       <div slot="footer">
-        <Button type="primary" @click="delSvae" :loading="isBtnLoading">保存</Button>
+        <Button type="primary" @click="copySvae" :loading="isBtnLoading">保存</Button>
         <Button style="margin-left: 8px" @click="duplicatescheduling=false">取消</Button>
       </div>
     </Modal>
@@ -642,7 +662,8 @@ import {
   batchSchedulingPreservation,
   deleteScheduling,
   saveTabelPerson,
-  singleDeletion
+  singleDeletion,
+  copySaveAjax
 } from "@/common/save"; //保存
 
 export default {
@@ -657,6 +678,7 @@ export default {
           }
         ]
       },
+      timedis: true, //复制开始日期有值时  才能选择目标日期时间
       columns1: [], //本周
       columns2: [], //下周
       columns3: [], //本月
@@ -719,6 +741,8 @@ export default {
         bck01: "",
         startDate: "",
         endDate: "",
+        targetstarttime: "",
+        targetendtime: "",
         weekNum: "",
         userIds: []
       },
@@ -775,13 +799,30 @@ export default {
       newTargetKeysArr2: [],
       newTargetKeysArr3: [],
       optionsBegindate: {
+        //复制开始时间
         disabledDate(date) {
           return date && date.valueOf() < Date.now() - 86400000;
         }
       },
       optionsdendDate: {
-        disabledDate(date) {
-          return date && date.valueOf() < Date.now() - 86400000;
+        //复制结束时间
+        disabledDate: date => {
+          let startTimes = this.dupbatchDat.startDate
+            ? new Date(this.dupbatchDat.startDate).valueOf() +
+              24 * 60 * 60 * 1000
+            : Date.now();
+
+          return date && date.valueOf() < startTimes;
+        }
+      },
+      optionsMubiaoBegindate: {
+        //目标开始时间
+        disabledDate: date => {
+          let startTime = this.dupbatchDat.endDate
+            ? new Date(this.dupbatchDat.endDate).valueOf() + 24 * 60 * 60 * 1000
+            : Date.now();
+
+          return date && date.valueOf() < startTime;
         }
       },
       tabelIndex: 1,
@@ -816,6 +857,8 @@ export default {
     },
     radioAllGroupChange(data) {
       shiftDeletion(this, data);
+      this.timedis = false;
+      this.timeClear(true);
     },
     init() {
       selectDoctor(this);
@@ -880,7 +923,6 @@ export default {
     },
     selectionScheduling(val) {
       // 批量排班多选
-
       promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
         id: this.batchDat[0].bck01,
         aaa01: this.batchDat[0].aaa01
@@ -907,7 +949,6 @@ export default {
     },
     delScheduling(val) {
       // 批量删除排班多选
-
       promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
         id: this.delbatchDat.bck01,
         aaa01: this.delbatchDat.aaa01
@@ -934,7 +975,7 @@ export default {
     },
 
     dupScheduling(val) {
-      // 批量删除排班多选
+      // 复制排班多选
       promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
         id: this.dupbatchDat.bck01,
         aaa01: this.dupbatchDat.aaa01
@@ -1001,13 +1042,12 @@ export default {
       //复制排班
       this.targetKeys3 = newTargetKeys;
       this.newTargetKeysArr3 = [];
-      this.delbatchDat.userIds = newTargetKeys;
       this.dupmockData.filter((item, index) => {
         if (newTargetKeys.indexOf(item.key) > -1) {
-          this.newTargetKeysArr3.push(item.key);
-          this.delbatchDat.userIds = this.newTargetKeysArr2;
+          this.newTargetKeysArr3.push(item.key + "-" + item.label);
         }
       });
+      console.log(this.newTargetKeysArr3);
     },
     getMoreParams(item, index) {
       debugger;
@@ -1060,6 +1100,36 @@ export default {
     cancel(index) {
       cancelReset(this, index);
     },
+    copySvae() {
+      //复制排班保存;
+      debugger;
+     
+      copySaveAjax(this);
+    },
+    timeModification(date) {
+      //点击目标开始日期 方法
+      debugger;
+      let mile =
+        new Date(this.dupbatchDat.endDate).valueOf() -
+        new Date(this.dupbatchDat.startDate).valueOf();
+      this.delbatchDat.targetendtime = this.$moment(
+        mile + new Date(date).valueOf()
+      ).format("YYYY-MM-DD");
+    },
+    timeStartModification() {
+      //点击复制日期开始方法
+      debugger;
+      if (this.dupbatchDat.startDate != "" && this.dupbatchDat.endDate != "") {
+        this.timedis = false;
+      }
+    },
+    timeClear(d) {
+      //清空复制日期
+      d == true ? (this.timedis = false) : (this.timedis = true);
+      this.delbatchDat.targetstarttime = "";
+      this.delbatchDat.targetendtime = "";
+    },
+
     selectPersonnel(val) {
       this.bce01Name = val.value;
       this.bce03Name = val.label;

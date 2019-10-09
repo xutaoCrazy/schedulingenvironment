@@ -4,6 +4,7 @@
  * deleteScheduling              批量删除排班保存
  * saveTabelPerson               点击表格排班保存
  * singleDeletion                点击单个排班删除
+ * copySaveAjax                  复制排班保存
  * 
  */
 import {
@@ -209,4 +210,81 @@ export const singleDeletion = (_this, zaa01) => {
       });
     }
   });
+}
+
+export const copySaveAjax = (_this) => {
+  debugger
+  if (_this.dupbatchDat.bck01 === "") {
+    _this.$Message.warning({
+      content: "科室不能为空",
+      duration: 2
+    });
+    return false;
+  }
+  if (_this.newTargetKeysArr3.length === 0) {
+    _this.$Message.warning({
+      content: "请选择人员",
+      duration: 2
+    });
+    return false;
+  }
+  if (_this.dupbatchDat.startDate === '') {
+    _this.$Message.warning({
+      content: "复制开始日期不能为空",
+      duration: 2
+    });
+    return false;
+  }
+
+  if (_this.dupbatchDat.endDate === '') {
+    _this.$Message.warning({
+      content: "复制结束日期不能为空",
+      duration: 2
+    });
+    return false;
+  }
+  if (_this.delbatchDat.targetstarttime === '') {
+    _this.$Message.warning({
+      content: "目标开始日期不能为空",
+      duration: 2
+    });
+    return false;
+  }
+  let parms = {}
+  parms.bck01 = _this.dupbatchDat.bck01
+  parms.employeeValue = _this.newTargetKeysArr3.join(',')
+  parms.copyStartDate = _this.$moment(
+    _this.dupbatchDat.startDate
+  ).format("YYYY-MM-DD"); //复制排班开始时间
+  parms.copyEndDate = _this.$moment(
+    _this.dupbatchDat.endDate
+  ).format("YYYY-MM-DD"); //复制排班结束时间
+  parms.targetStartDate = _this.$moment(
+    _this.delbatchDat.targetstarttime
+  ).format("YYYY-MM-DD"); //目标开始时间
+  parms.targetEndDate = _this.$moment(
+    _this.delbatchDat.targetendtime
+  ).format("YYYY-MM-DD"); //目标结束时间
+  _this.loadingShow(_this, "保存中");
+  promiseShifts("/api/rateweb/cloud/SysSchedule/copyEmployeeSchedule", "post", parms).then(res => {
+    if (res.status === 200 && res.data.result === "SUCCESS") {
+      _this.$Message.success({
+        content: "保存成功",
+        duration: 2
+      });
+      _this.duplicatescheduling = false
+      tableInit(_this);
+    } else {
+      if (res.data.resultMsg == null) {
+        res.data.resultMsg = '保存失败'
+      }
+      _this.$Modal.error({
+        title: "信息",
+        content: res.data.resultMsg,
+        className: "vertical-center-modal"
+      });
+    }
+    _this.loadingHide(_this);
+  });
+
 }
