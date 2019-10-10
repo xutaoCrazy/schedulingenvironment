@@ -42,8 +42,8 @@ export default {
   tree_table_page: '树状表格',
   org_tree_page: '组织结构树',
   drag_drawer_page: '可拖动抽屉',
-  Workforcemanagement: '排班管理',
-  shiftsmangement:'班次管理',
-  parametersettings:'参数设置',
-  messagecenter:'消息中心'
+  Workforcemanagement: '班次管理',
+  shiftsmangement: '排班管理',
+  parametersettings: '参数设置',
+  messagecenter: '消息中心'
 }

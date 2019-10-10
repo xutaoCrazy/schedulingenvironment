@@ -273,6 +273,7 @@ export const copySaveAjax = (_this) => {
         duration: 2
       });
       _this.duplicatescheduling = false
+      copyClear(_this);
       tableInit(_this);
     } else {
       if (res.data.resultMsg == null) {
@@ -287,4 +288,28 @@ export const copySaveAjax = (_this) => {
     _this.loadingHide(_this);
   });
 
+}
+
+
+
+export const copyClear = (_this) => {
+  _this.delbatchDat.bck01 = "";
+  _this.delbatchDat.startDate = "";
+  _this.delbatchDat.endDate = "";
+  _this.delbatchDat.targetstarttime = "";
+  _this.delbatchDat.targetendtime = "";
+  _this.delbatchDat.weekNum = "";
+  _this.delbatchDat.userIds = [];
+
+  _this.dupbatchDat.bck01 = "";
+  _this.dupbatchDat.aaa01 = "";
+  _this.dupbatchDat.startDate = "";
+  _this.dupbatchDat.endDate = "";
+
+  _this.newTargetKeysArr3 = []
+  _this.weekradio = ''
+
+  _this.dupmockData = [];
+  _this.targetKeys3 = [];
+  _this.newTargetKeysArr3 = [];
 }

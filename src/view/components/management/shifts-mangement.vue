@@ -570,7 +570,7 @@
         <Row>
           <Col span="24">
             <FormItem>
-              <RadioGroup size="large" @on-change="radioAllGroupChange">
+              <RadioGroup size="large" v-model="weekradio" @on-change="radioAllGroupChange">
                 <Radio label="1">本周</Radio>
                 <Radio label="2">上周</Radio>
                 <Radio label="3">本月</Radio>
@@ -685,6 +685,7 @@ export default {
       columns4: [], //七天内
       columns5: [], //14天内
       columns6: [], //30天内
+      weekradio: "",
       titleArr: ["全部人员", "已选人员"],
       showschedules: false,
       data1: [],
@@ -1103,7 +1104,7 @@ export default {
     copySvae() {
       //复制排班保存;
       debugger;
-     
+
       copySaveAjax(this);
     },
     timeModification(date) {

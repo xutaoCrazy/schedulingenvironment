@@ -229,9 +229,7 @@ export default {
             }
           });
         },
-        onCancel: () => {
-          this.$Message.info("Clicked cancel");
-        }
+        onCancel: () => {}
       });
     },
     close() {

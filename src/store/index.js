@@ -9,11 +9,14 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     sideCollapse: false,
-    trueName: '',
-    systemVer: '',
-    parameterArray: ''
+    trueName: '', //
+    systemVer: '', //版本号
+    parameterArray: '', //医院名称
+    baseHospitalid: '', //默认选中
+    loginFilters: '',
+    loginName: ''
   },
-  mutations: {
+  mutations: { //取值
     setSideCollapse(state, bool) {
       state.sideCollapse = bool
     },
@@ -25,7 +28,21 @@ export default new Vuex.Store({
       state.systemVer = name
     },
     parameterArray(state, name) { //医院名称
-      state.parameterArray = name
+      debugger;
+      let parame = JSON.parse(name)[0].children
+      state.parameterArray = parame
+      state.baseHospitalid = parame[0].id
+
+    },
+    loginFilters(state, name) { //医院名称
+      debugger;
+      state.loginFilter = name
+
+    },
+    loginNames(state, name) { //医院名称
+      debugger;
+      state.loginName = name
+
     }
   },
   actions: {
