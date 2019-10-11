@@ -4,7 +4,9 @@ import routes from './routers'
 import store from '@/store'
 import iView from 'iview'
 // import { setToken, getToken, canTurnTo, setTitle } from '@/libs/util'
-import { setTitle } from '@/libs/util'
+import {
+  setTitle
+} from '@/libs/util'
 import config from '@/config'
 // const { homeName } = config
 

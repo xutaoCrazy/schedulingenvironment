@@ -1,6 +1,4 @@
 import Main from '@/components/main'
-import parentView from '@/components/parent-view'
-
 /**
  * iview-admin中meta除了原生参数外可配置的参数:
  * meta: {
@@ -17,8 +15,8 @@ import parentView from '@/components/parent-view'
  * }
  */
 
-export default [
-  {
+
+const arr = [{
     path: '/login',
     name: 'login',
     meta: {
@@ -36,35 +34,39 @@ export default [
       // hideInMenu: true,
       notCache: true
     },
-    children: [
-      {
-        path: '/home',
-        name: 'home',
-        meta: {
-          // hideInMenu: true,
-          title: '首页',
-          notCache: true,
-          icon: 'md-home'
-        },
-        component: () => import('@/view/single-page/home')
-      }
-    ]
+    children: [{
+      path: '/home',
+      name: 'home',
+      meta: {
+        // hideInMenu: true,
+        title: '首页',
+        notCache: true,
+        icon: 'md-home'
+      },
+      component: () => import('@/view/single-page/home')
+    }]
   },
   {
     path: '/components',
     name: 'businessplatform',
     meta: {
       icon: 'logo-buffer',
-      title: '业务平台'
+      title: '业务平台',
+      notCache: true,
+      showAlways: true,
+      hideInMenu: false,
+      code: 'schywpt'
     },
     component: Main,
-    children: [
-      {
+    children: [{
         path: 'workforcemanagement',
         name: 'Workforcemanagement',
         meta: {
           icon: 'md-arrow-dropdown-circle',
-          title: '排班管理'
+          title: '班次管理',
+          notCache: true,
+          hideInMenu: false,
+          code: 'bcgl',
         },
         component: () => import('@/view/components/workforcemanagement/workforcemanagement.vue')
       },
@@ -73,51 +75,56 @@ export default [
         name: 'shiftsmangement',
         meta: {
           icon: 'md-trending-up',
-          title: '班次管理'
+          title: '排班管理',
+          notCache: true,
+          hideInMenu: false,
+          code:'pbgl'
         },
         component: () => import('@/view/components/management/shifts-mangement.vue')
       }
     ]
   },
   {
-    path: '/tools_methods',
-    name: 'tools_methods',
+    path: '/components',
+    name: 'parametersettings',
     meta: {
-      hideInBread: true
+      hideInBread: true,
+      hideInMenu: false,
     },
     component: Main,
-    children: [
-      {
-        path: 'tools_methods_page',
-        name: 'parametersettings',
-        meta: {
-          icon: 'md-settings',
-          title: '参数设置',
-          beforeCloseName: 'before_close_normal'
-        },
-        component: () => import('@/view/tools-methods/tools-methods.vue')
-      }
-    ]
+    children: [{
+      path: 'tools_methods_page',
+      name: 'parametersettings',
+      meta: {
+        icon: 'md-settings',
+        title: '参数设置',
+        beforeCloseName: 'before_close_normal',
+        notCache: true,
+        code: 'scjcssz'
+      },
+      component: () => import('@/view/tools-methods/tools-methods.vue')
+    }]
   },
   {
     path: '/message-center',
     name: 'message-center',
     meta: {
-      hideInBread: true
+      hideInBread: true,
+      hideInMenu: false,
     },
     component: Main,
-    children: [
-      {
-        path: 'message-center',
-        name: 'messagecenter',
-        meta: {
-          icon: 'md-mail',
-          title: '消息中心',
-          beforeCloseName: 'before_close_normal'
-        },
-        component: () => import('@/view/message-center/message-center.vue')
-      }
-    ]
+    children: [{
+      path: 'message-center',
+      name: 'messagecenter',
+      meta: {
+        icon: 'md-mail',
+        title: '消息中心',
+        beforeCloseName: 'before_close_normal',
+        notCache: true,
+        code: 'pb_xxzx'
+      },
+      component: () => import('@/view/message-center/message-center.vue')
+    }]
   },
   {
     path: '/401',
@@ -144,3 +151,5 @@ export default [
     component: () => import('@/view/error-page/404.vue')
   }
 ]
+
+export default arr

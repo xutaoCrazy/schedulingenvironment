@@ -16,10 +16,11 @@ export const axiosFunc = (url, type, params, flag) => {
         data: qs.stringify(params)
       })
     }
-  } else {    
+  } else {
     return axios.request({
       url: url,
       method: type,
+      async: false,
       params: params
     })
   }

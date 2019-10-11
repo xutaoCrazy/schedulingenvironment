@@ -11,27 +11,35 @@
           <DropdownItem name="close-others">关闭其他</DropdownItem>
         </DropdownMenu>
       </Dropdown>
-      <Button class="logout">
-        <Icon type="ios-log-out" :size='20'/>
-        退出
+      <Button class="logout" @click="logout">
+        <Icon type="ios-log-out" :size="20" />退出
       </Button>
     </div>
-    <ul v-show="visible" :style="{left: contextMenuLeft + 'px', top: contextMenuTop + 'px'}" class="contextmenu">
+    <ul
+      v-show="visible"
+      :style="{left: contextMenuLeft + 'px', top: contextMenuTop + 'px'}"
+      class="contextmenu"
+    >
       <li v-for="(item, key) of menuList" @click="handleTagsOption(key)" :key="key">{{item}}</li>
     </ul>
     <div class="btn-con left-btn">
       <Button type="text" @click="handleScroll(240)">
         <!-- <Icon :size="18" type="ios-arrow-back" /> -->
-        <Icon :size="18"  type="md-rewind" />
+        <Icon :size="18" type="md-rewind" />
       </Button>
     </div>
     <div class="btn-con right-btn">
       <Button type="text" @click="handleScroll(-240)">
         <!-- <Icon :size="18" type="ios-arrow-forward" /> -->
-         <Icon :size="18"  type="md-rewind" />
+        <Icon :size="18" type="md-rewind" />
       </Button>
     </div>
-    <div class="scroll-outer" ref="scrollOuter" @DOMMouseScroll="handlescroll" @mousewheel="handlescroll">
+    <div
+      class="scroll-outer"
+      ref="scrollOuter"
+      @DOMMouseScroll="handlescroll"
+      @mousewheel="handlescroll"
+    >
       <div ref="scrollBody" class="scroll-body" :style="{left: tagBodyLeft + 'px'}">
         <transition-group name="taglist-moving-animation">
           <Tag
@@ -53,19 +61,21 @@
 </template>
 
 <script>
-import { showTitle, routeEqual } from '@/libs/util'
+import { showTitle, routeEqual } from "@/libs/util";
+import { mapState, mapMutations } from "vuex";
+
 export default {
-  name: 'TagsNav',
+  name: "TagsNav",
   props: {
     value: Object,
     list: {
       type: Array,
-      default () {
-        return []
+      default() {
+        return [];
       }
     }
   },
-  data () {
+  data() {
     return {
       tagBodyLeft: 0,
       rightOffset: 40,
@@ -74,133 +84,177 @@ export default {
       contextMenuTop: 0,
       visible: false,
       menuList: {
-        others: '关闭其他',
-        all: '关闭所有'
+        others: "关闭其他",
+        all: "关闭所有"
       }
-    }
+    };
   },
   computed: {
-    currentRouteObj () {
-      const { name, params, query } = this.value
-      return { name, params, query }
-    }
+    currentRouteObj() {
+      const { name, params, query } = this.value;
+      return { name, params, query };
+    },
+    ...mapState(["centerurl", "loginName"])
   },
   methods: {
-    handlescroll (e) {
-      var type = e.type
-      let delta = 0
-      if (type === 'DOMMouseScroll' || type === 'mousewheel') {
-        delta = (e.wheelDelta) ? e.wheelDelta : -(e.detail || 0) * 40
+    handlescroll(e) {
+      var type = e.type;
+      let delta = 0;
+      if (type === "DOMMouseScroll" || type === "mousewheel") {
+        delta = e.wheelDelta ? e.wheelDelta : -(e.detail || 0) * 40;
       }
-      this.handleScroll(delta)
+      this.handleScroll(delta);
     },
-    handleScroll (offset) {
-      const outerWidth = this.$refs.scrollOuter.offsetWidth
-      const bodyWidth = this.$refs.scrollBody.offsetWidth
+    handleScroll(offset) {
+      const outerWidth = this.$refs.scrollOuter.offsetWidth;
+      const bodyWidth = this.$refs.scrollBody.offsetWidth;
       if (offset > 0) {
-        this.tagBodyLeft = Math.min(0, this.tagBodyLeft + offset)
+        this.tagBodyLeft = Math.min(0, this.tagBodyLeft + offset);
       } else {
         if (outerWidth < bodyWidth) {
           if (this.tagBodyLeft < -(bodyWidth - outerWidth)) {
-            this.tagBodyLeft = this.tagBodyLeft
+            this.tagBodyLeft = this.tagBodyLeft;
           } else {
-            this.tagBodyLeft = Math.max(this.tagBodyLeft + offset, outerWidth - bodyWidth)
+            this.tagBodyLeft = Math.max(
+              this.tagBodyLeft + offset,
+              outerWidth - bodyWidth
+            );
           }
         } else {
-          this.tagBodyLeft = 0
+          this.tagBodyLeft = 0;
         }
       }
     },
-    handleTagsOption (type) {
-      if (type.includes('all')) {
+    handleTagsOption(type) {
+      if (type.includes("all")) {
         // 关闭所有，除了home
-        let res = this.list.filter(item => item.name === this.$config.homeName)
-        this.$emit('on-close', res, 'all')
-      } else if (type.includes('others')) {
+        let res = this.list.filter(item => item.name === this.$config.homeName);
+        this.$emit("on-close", res, "all");
+      } else if (type.includes("others")) {
         // 关闭除当前页和home页的其他页
-        let res = this.list.filter(item => routeEqual(this.currentRouteObj, item) || item.name === this.$config.homeName)
-        this.$emit('on-close', res, 'others', this.currentRouteObj)
+        let res = this.list.filter(
+          item =>
+            routeEqual(this.currentRouteObj, item) ||
+            item.name === this.$config.homeName
+        );
+        this.$emit("on-close", res, "others", this.currentRouteObj);
         setTimeout(() => {
-          this.getTagElementByRoute(this.currentRouteObj)
-        }, 100)
+          this.getTagElementByRoute(this.currentRouteObj);
+        }, 100);
       }
     },
-    handleClose (current) {
-      this.close(current)
+    handleClose(current) {
+      this.close(current);
     },
-    close (route) {
-      let res = this.list.filter(item => !routeEqual(route, item))
-      this.$emit('on-close', res, undefined, route)
+    close(route) {
+      let res = this.list.filter(item => !routeEqual(route, item));
+      this.$emit("on-close", res, undefined, route);
     },
-    handleClick (item) {
-      this.$emit('input', item)
+    handleClick(item) {
+      this.$emit("input", item);
     },
-    showTitleInside (item) {
-      return showTitle(item, this)
+    showTitleInside(item) {
+      return showTitle(item, this);
     },
-    isCurrentTag (item) {
-      return routeEqual(this.currentRouteObj, item)
+    isCurrentTag(item) {
+      return routeEqual(this.currentRouteObj, item);
     },
-    moveToView (tag) {
-      const outerWidth = this.$refs.scrollOuter.offsetWidth
-      const bodyWidth = this.$refs.scrollBody.offsetWidth
+    moveToView(tag) {
+      const outerWidth = this.$refs.scrollOuter.offsetWidth;
+      const bodyWidth = this.$refs.scrollBody.offsetWidth;
       if (bodyWidth < outerWidth) {
-        this.tagBodyLeft = 0
+        this.tagBodyLeft = 0;
       } else if (tag.offsetLeft < -this.tagBodyLeft) {
         // 标签在可视区域左侧
-        this.tagBodyLeft = -tag.offsetLeft + this.outerPadding
-      } else if (tag.offsetLeft > -this.tagBodyLeft && tag.offsetLeft + tag.offsetWidth < -this.tagBodyLeft + outerWidth) {
+        this.tagBodyLeft = -tag.offsetLeft + this.outerPadding;
+      } else if (
+        tag.offsetLeft > -this.tagBodyLeft &&
+        tag.offsetLeft + tag.offsetWidth < -this.tagBodyLeft + outerWidth
+      ) {
         // 标签在可视区域
-        this.tagBodyLeft = Math.min(0, outerWidth - tag.offsetWidth - tag.offsetLeft - this.outerPadding)
+        this.tagBodyLeft = Math.min(
+          0,
+          outerWidth - tag.offsetWidth - tag.offsetLeft - this.outerPadding
+        );
       } else {
         // 标签在可视区域右侧
-        this.tagBodyLeft = -(tag.offsetLeft - (outerWidth - this.outerPadding - tag.offsetWidth))
+        this.tagBodyLeft = -(
+          tag.offsetLeft -
+          (outerWidth - this.outerPadding - tag.offsetWidth)
+        );
       }
     },
-    getTagElementByRoute (route) {
+    getTagElementByRoute(route) {
       this.$nextTick(() => {
-        this.refsTag = this.$refs.tagsPageOpened
+        this.refsTag = this.$refs.tagsPageOpened;
         this.refsTag.forEach((item, index) => {
-          if (routeEqual(route, item.$attrs['data-route-item'])) {
-            let tag = this.refsTag[index].$el
-            this.moveToView(tag)
+          if (routeEqual(route, item.$attrs["data-route-item"])) {
+            let tag = this.refsTag[index].$el;
+            this.moveToView(tag);
           }
-        })
-      })
+        });
+      });
     },
-    contextMenu (item, e) {
+    contextMenu(item, e) {
       if (item.name === this.$config.homeName) {
-        return
+        return;
       }
-      this.visible = true
-      const offsetLeft = this.$el.getBoundingClientRect().left
-      this.contextMenuLeft = e.clientX - offsetLeft + 10
-      this.contextMenuTop = e.clientY - 64
+      this.visible = true;
+      const offsetLeft = this.$el.getBoundingClientRect().left;
+      this.contextMenuLeft = e.clientX - offsetLeft + 10;
+      this.contextMenuTop = e.clientY - 64;
     },
-    closeMenu () {
-      this.visible = false
+    closeMenu() {
+      this.visible = false;
+    },
+    logout() {
+      let $this = this;
+      this.$Modal.confirm({
+        title: "提示",
+        content: "您确定要离开云健康吗？",
+        onOk: () => {
+          debugger;
+          $.ajax({
+            type: "GET",
+            url: this.centerurl + "/cloud/sysUser/cloudLogout",
+            data: { loginName: this.loginName },
+            dataType: "jsonp",
+            crossDomain: true,
+            jsonp: "callback",
+            jsonpCallback: "success_jsonp",
+            success: function(msg) {
+              debugger;
+              msg = msg[0];
+              if (msg.result == "SUCCESS") {
+                window.parent.location.href = $this.centerurl + "/login.jsp"; //跳转登录页面
+              }
+            }
+          });
+        },
+        onCancel: () => {}
+      });
     }
   },
   watch: {
-    '$route' (to) {
-      this.getTagElementByRoute(to)
+    $route(to) {
+      this.getTagElementByRoute(to);
     },
-    visible (value) {
+    visible(value) {
       if (value) {
-        document.body.addEventListener('click', this.closeMenu)
+        document.body.addEventListener("click", this.closeMenu);
       } else {
-        document.body.removeEventListener('click', this.closeMenu)
+        document.body.removeEventListener("click", this.closeMenu);
       }
     }
   },
-  mounted () {
+  mounted() {
     setTimeout(() => {
-      this.getTagElementByRoute(this.$route)
-    }, 200)
+      this.getTagElementByRoute(this.$route);
+    }, 200);
   }
-}
+};
 </script>
 
 <style lang="less">
-@import './tags-nav.less';
+@import "./tags-nav.less";
 </style>

@@ -17,7 +17,7 @@
       <div id>
         <Layout>
           <Content class="workcontent">
-            <Form label-position="left" :label-width="100" :model="formCustom" ref="formCustom">
+            <Form label-position="left" :label-width="100" ref="formCustom">
               <FormItem label="班次名称" prop="bco02">
                 <Input clearable v-model="formCustom[0].value" name="bco02" />
               </FormItem>
@@ -25,22 +25,22 @@
                 <ColorPicker v-model="formCustom[1].value" name="bco06" />
               </FormItem>
               <FormItem label="开始时间">
-                <DatePicker
+                <TimePicker
                   type="time"
                   placeholder="开始时间"
                   style="width:100%"
                   v-model="formCustom[2].value"
                   name="bco03"
-                ></DatePicker>
+                ></TimePicker>
               </FormItem>
               <FormItem label="结束时间">
-                <DatePicker
+                <TimePicker
                   type="time"
                   placeholder="结束时间"
                   style="width:100%"
                   v-model="formCustom[3].value"
                   name="bco04"
-                ></DatePicker>
+                ></TimePicker>
               </FormItem>
             </Form>
           </Content>

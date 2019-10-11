@@ -41,55 +41,20 @@ import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      bulletFlag: false,
-      bck03: "",
-      loginTime: "",
-      centerurl: ""
+      bulletFlag: false
     };
   },
   computed: {
-    ...mapState(["trueName", "loginFilter", "loginName"])
+    ...mapState([
+      "trueName",
+      "loginFilter",
+      "loginName",
+      "centerurl",
+      "bck03",
+      "loginTime"
+    ])
   },
-
   methods: {
-    ...mapMutations([
-      "trueNameFlag",
-      "systemVer",
-      "parameterArray",
-      "loginFilters",
-      "loginNames"
-    ]),
-    promiseShifts(url, type, params, flag) {
-      let data = new Promise((resolve, reject) => {
-        let save = axiosFunc(url, type, params, flag);
-        resolve(save);
-      });
-      return data;
-    },
-    loginPersonInformation() {
-      this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getSeverUserConfig",
-        "get",
-        {}
-      ).then(res => {
-        debugger;
-        if (res.status === 200) {
-          this.trueNameFlag(res.data.map.trueName);
-          this.systemVer(res.data.map.systemVer);
-          this.parameterArray(res.data.map.parameterArray);
-          this.centerurl = res.data.map.centerurl;
-          this.loginFilters(res.data.map.loginFilter);
-          this.bck03 = res.data.map.bck03;
-          this.loginNames(res.data.map.loginName);
-          this.loginTime = this.$moment(
-            parseFloat(res.data.map.loginTime)
-          ).format("YYYY-MM-DD HH:mm:ss");
-        }
-      });
-    },
-    init() {
-      this.loginPersonInformation();
-    },
     beforeunloadHandler(e) {
       // var confirmationMessage = "确定离开此页吗？";
       // (e || window.event).returnValue = confirmationMessage;
@@ -135,10 +100,10 @@ export default {
     }
   },
   mounted() {
-    this.init();
     window.addEventListener("beforeunload", e => this.beforeunloadHandler(e));
     //判断登陆用户同一个浏览器只能登录一个
     document.addEventListener("focus", e => this.focusEventUser(e), true);
+    console.log(this.loginTime);
   }
 };
 </script>
