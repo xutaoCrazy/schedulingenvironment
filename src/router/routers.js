@@ -66,7 +66,7 @@ const arr = [{
           title: '班次管理',
           notCache: true,
           hideInMenu: false,
-          code: 'bcgl',
+          code: 2259,
         },
         component: () => import('@/view/components/workforcemanagement/workforcemanagement.vue')
       },
@@ -78,7 +78,7 @@ const arr = [{
           title: '排班管理',
           notCache: true,
           hideInMenu: false,
-          code:'pbgl'
+          code: 2260
         },
         component: () => import('@/view/components/management/shifts-mangement.vue')
       }

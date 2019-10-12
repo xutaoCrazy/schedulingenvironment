@@ -32,7 +32,6 @@ export default {
   },
   methods: {
     handleMoving (e) {
-      console.log(e.atMin, e.atMax)
     }
   }
 }

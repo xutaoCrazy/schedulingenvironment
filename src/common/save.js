@@ -54,7 +54,7 @@ export const singleShiftsCheduling = (_this) => {
   _this.isBtnLoading = true;
   _this.loadingShow(_this, "保存中");
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/saveSchedule",
+    "/rateweb/cloud/SysSchedule/saveSchedule",
     "post", {
       commformStr: JSON.stringify(_this.shiftformdata),
       type: _this.showType,
@@ -88,7 +88,7 @@ export const batchSchedulingPreservation = (_this) => {
   _this.isBtnLoading = true;
   _this.loadingShow(_this, "保存中");
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/saveSchedule",
+    "/rateweb/cloud/SysSchedule/saveSchedule",
     "post", {
       commformStr: JSON.stringify(_this.batchDat),
       type: _this.isSource,
@@ -140,7 +140,7 @@ export const deleteScheduling = (_this) => {
   );
   _this.loadingShow(_this, "保存中");
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/removeBatchSourceData",
+    "/rateweb/cloud/SysSchedule/removeBatchSourceData",
     "post",
     _this.delbatchDat,
     true
@@ -170,7 +170,7 @@ export const saveTabelPerson = (_this, zaa01) => {
   _this.showType = 4;
   _this.loadingShow(_this, "保存中");
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/saveSchedule",
+    "/rateweb/cloud/SysSchedule/saveSchedule",
     "post", {
       zaa01: zaa01,
       type: _this.showType
@@ -193,7 +193,7 @@ export const saveTabelPerson = (_this, zaa01) => {
   });
 }
 export const singleDeletion = (_this, zaa01) => {
-  promiseShifts("/api/rateweb/cloud/SysSchedule/removeSourceData", "post", {
+  promiseShifts("/rateweb/cloud/SysSchedule/removeSourceData", "post", {
     id: zaa01
   }).then(res => {
     if (res.status === 200 && res.data.result === "SUCCESS") {
@@ -266,7 +266,7 @@ export const copySaveAjax = (_this) => {
     _this.delbatchDat.targetendtime
   ).format("YYYY-MM-DD"); //目标结束时间
   _this.loadingShow(_this, "保存中");
-  promiseShifts("/api/rateweb/cloud/SysSchedule/copyEmployeeSchedule", "post", parms).then(res => {
+  promiseShifts("/rateweb/cloud/SysSchedule/copyEmployeeSchedule", "post", parms).then(res => {
     if (res.status === 200 && res.data.result === "SUCCESS") {
       _this.$Message.success({
         content: "保存成功",

@@ -183,7 +183,6 @@ export default {
   },
   methods: {
     handle (scope) {
-      console.log(scope)
     }
   }
 }

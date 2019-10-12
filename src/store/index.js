@@ -22,6 +22,8 @@ export default new Vuex.Store({
     loginTime: '',
     userId: '',
     jsessionids: '',
+    jsonpFlag: false,
+    btnCode: []
   },
   mutations: {
     setSideCollapse(state, bool) {
@@ -63,7 +65,13 @@ export default new Vuex.Store({
     },
     jsessionids(state, name) { //jsessionids
       state.jsessionids = name
-    }
+    },
+    jsonpFlags(state, flag) {
+      state.jsonpFlag = flag
+    },
+    btnCodes(state, btnCode) {
+      state.btnCode = btnCode
+    },
   },
   actions: {
 

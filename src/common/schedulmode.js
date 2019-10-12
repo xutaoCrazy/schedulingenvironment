@@ -63,7 +63,7 @@ export const scheduShow = (params, flag, timeJson, zaa01, $color, $item, _this) 
     }
     if (zaa01 && $color) {
       promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getOneScheduById",
+        "/rateweb/cloud/SysSchedule/getOneScheduById",
         "get", {
           id: zaa01
         }

@@ -40,7 +40,7 @@ export default {
     local: localRead('local'),
     errorList: [],
     hasReadErrorPage: false,
-    menuLists: []
+    menuLists: [],
   },
   getters: {
     menuList: (state, getters, rootState) => state.menuLists, // 修改左侧路由菜单
@@ -50,6 +50,7 @@ export default {
     setMenuLists(state, menuLists) { // 修改左侧路由
       state.menuLists = menuLists
     },
+
     setBreadCrumb(state, route) {
       state.breadCrumbList = getBreadCrumbList(route, state.homeRoute)
     },
@@ -135,10 +136,9 @@ export default {
         return data;
       }
       promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getSeverUserConfig",
+        "/rateweb/cloud/SysSchedule/getSeverUserConfig",
         "get", {}
       ).then(res => {
-        debugger;
         if (res.status === 200 && res.data.result == "SUCCESS") {
           let map = res.data.map
           commit('trueNameFlag', map.trueName)
@@ -151,17 +151,14 @@ export default {
           commit('loginTimes', map.loginTime)
           commit('userId', map.userId)
           commit('jsessionids', map.jsessionids)
-          Promise.all([getMainLeftBottomData()])
-            .then(function (params) {
-              debugger
-              routerJson(params[0])
-              commit('setMenuLists', getMenuByRouter(routers, rootState.access))
-            })
+          commit('jsonpFlags', false)
+          getMainLeftBottomData();
 
         } else {
           window.location.href = res.data.split("'")[1];
         }
       });
+
       const getMainLeftData = () => {
         let p = new Promise((resolve, reject) => {
           $.ajax({
@@ -191,16 +188,16 @@ export default {
         return p
       };
       const getMainLeftBottomData = () => {
-        let p1 = new Promise((resolve, reject) => {
+        getMainLeftData().then((res) => {
           $.ajax({
             type: "GET",
-            url: rootState.centerurl + "/cloud/sysUser/getCloudOMenuByUserId",
+            url: rootState.centerurl + "/cloud/sysUser/getCloudSMenuByUserId",
             data: {
               'language': 'zh-CN',
               'userId': rootState.userId,
               'loginCode': rootState.loginName,
               'sysModId': 2254,
-              'sysModSId': 2255,
+              'sysModSId': '2255',
               'jsessionids': rootState.jsessionids
             },
             dataType: "jsonp",
@@ -211,22 +208,60 @@ export default {
               debugger;
               let parms = [];
               for (let i = 0; i < data.length; i++) {
-                parms.push(data[i].attributes.codeOmit)
+                parms.push(data[i].attributes.code)
               }
-              resolve(parms)
+              parms = parms.concat(res);
+              routerJson(parms)
+              commit('setMenuLists', getMenuByRouter(routers, rootState.access))
             }
           });
+        }).then((res) => {
+          checkPermission()
         })
-        return p1
+
+      };
+      const checkPermission = () => {
+        $.ajax({
+          type: "GET",
+          url: rootState.centerurl + "/cloud/sysUser/initCloudUser",
+          data: {
+            userId: rootState.userId,
+            loginCode: rootState.loginName,
+            modId: 2260,
+            jsessionids: rootState.jsessionids
+          },
+          dataType: "jsonp",
+          crossDomain: true,
+          jsonp: "callback",
+          jsonpCallback: "success_jsonp",
+          success: function (resp) {
+            debugger;
+            if (resp) {
+              let btnCode = []
+              for (let i = 0; i < resp.length; i++) {
+                btnCode.push(resp[i].btnCode)
+              }
+              commit('btnCodes', btnCode)
+            }
+          }
+        });
+
       };
       const routerJson = (parms) => {
         debugger;
         parms.indexOf(routers[2].meta.code) != -1 ? routers[2].meta.hideInMenu = false : routers[2].meta.hideInMenu = true
         parms.indexOf(routers[3].children[0].meta.code) != -1 ? routers[3].meta.hideInMenu = false : routers[3].meta.hideInMenu = true
         parms.indexOf(routers[4].children[0].meta.code) != -1 ? routers[4].meta.hideInMenu = false : routers[4].meta.hideInMenu = true
-        if (routers[2].children.length == 0) {
-          router[2].meta.showAlways = false;
-          router[2].meta.hideInMenu = true;
+        parms.indexOf(routers[2].children[0].meta.code) != -1 ? routers[2].children[0].meta.hideInMenu = false : routers[2].children[0].meta.hideInMenu = true
+        parms.indexOf(routers[2].children[1].meta.code) != -1 ? routers[2].children[1].meta.hideInMenu = false : routers[2].children[1].meta.hideInMenu = true
+        console.log(routers[2])
+        console.log(routers[2].children[0])
+        console.log(routers[2].children[1])
+        console.log(parms)
+        if (routers[2].children[0].meta.hideInMenu && routers[2].children[1].meta.hideInMenu) {
+          debugger;
+          routers[2].meta.showAlways = false;
+          routers[2].meta.hideInMenu = true;
         }
       }
     }

@@ -47,16 +47,12 @@ export default {
       // this.treeSelected = [];
     },
     handleTreeSelectChange (list) {
-      // console.log('=-========', list);
     },
     handleTreeSelectExpand (item) {
-      // console.log('toggle expand', item);
     },
     handleTreeSelectCheckChange (selectedArray, item) {
-      // console.log(selectedArray, item);
     },
     handleTreeSelectClick (selectArray, item) {
-      // console.log(selectArray, item);
     },
     loadData (item, callback) {
       setTimeout(() => {

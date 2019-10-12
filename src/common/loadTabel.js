@@ -9,7 +9,7 @@ export const tableInit = (_this) => {
   // 加载表格数据
   _this.tabelloading = true;
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/getSearchScheduRecordsList",
+    "/rateweb/cloud/SysSchedule/getSearchScheduRecordsList",
     "get", {
       bck01: _this.Department,
       bce01: _this.bce01Arr.join(","),
@@ -62,7 +62,7 @@ export const tableInit = (_this) => {
 
 export const getpersonnelPageList = (_this) => {
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/getPersonnelPageList",
+    "/rateweb/cloud/SysSchedule/getPersonnelPageList",
     "get", {
       id: _this.Department,
       aaa01: _this.docter,
@@ -84,14 +84,14 @@ export const getpersonnelPageList = (_this) => {
 
 export const selectDoctor = (_this) => {
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/getBusinessList",
+    "/rateweb/cloud/SysSchedule/getBusinessList",
     "get", {}
   ).then(res => { //职务
     if (res.status === 200) {
       _this.docterList = res.data;
     }
   });
-  promiseShifts("/api/rateweb/cloud/SysSchedule/getBck1List", "get", {
+  promiseShifts("/rateweb/cloud/SysSchedule/getBck1List", "get", {
     keyWord: "",
     page: 1,
     rows: 30
@@ -103,7 +103,7 @@ export const selectDoctor = (_this) => {
     }
   });
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/getShiftsList",
+    "/rateweb/cloud/SysSchedule/getShiftsList",
     "get", {}
   ).then(res => {
     // 班次
@@ -112,7 +112,7 @@ export const selectDoctor = (_this) => {
     }
   });
   promiseShifts(
-    "/api/rateweb/cloud/SysSchedule/getCategory",
+    "/rateweb/cloud/SysSchedule/getCategory",
     "get", {}
   ).then(res => {
     // 挂号号别

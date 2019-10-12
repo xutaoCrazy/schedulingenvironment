@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class='workmanagement'>
     <Header style="height:45px!important;line-height:35px!important;text-align:right;width:800px">
       <Button type="primary" @click="open">
         <Icon type="md-add" />新增
@@ -210,7 +210,7 @@ export default {
         content: "确认删除当前班次吗？",
         onOk: () => {
           this.promiseShifts(
-            "/api/rateweb/cloud/SysSchedule/removeShifts",
+            "/rateweb/cloud/SysSchedule/removeShifts",
             "post",
             { id: params.row.bco01 }
           ).then(res => {
@@ -282,7 +282,7 @@ export default {
     },
     tabelGetList() {
       this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/getShiftsList",
+        "/rateweb/cloud/SysSchedule/getShiftsList",
         "get",
         {}
       ).then(res => {
@@ -297,7 +297,7 @@ export default {
       this.isBtnLoading = true;
       // loadingShow('保存中')
       this.promiseShifts(
-        "/api/rateweb/cloud/SysSchedule/saveShifts",
+        "/rateweb/cloud/SysSchedule/saveShifts",
         "post",
         { commformStr: JSON.stringify(this.formCustom) },
         true

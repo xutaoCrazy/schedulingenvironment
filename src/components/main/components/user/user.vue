@@ -103,7 +103,6 @@ export default {
     window.addEventListener("beforeunload", e => this.beforeunloadHandler(e));
     //判断登陆用户同一个浏览器只能登录一个
     document.addEventListener("focus", e => this.focusEventUser(e), true);
-    console.log(this.loginTime);
   }
 };
 </script>

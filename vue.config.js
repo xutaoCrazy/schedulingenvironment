@@ -12,7 +12,7 @@ const resolve = dir => {
 // 需要将它改为'/my-app/'
 // iview-admin线上演示打包路径： https://file.iviewui.com/admin-dist/
 const BASE_URL = process.env.NODE_ENV === 'production'
-  ? '/'
+  ? '/rateweb/jsp/sysschedule/dist'
   : '/'
 module.exports = {
   // Project deployment base
@@ -45,13 +45,9 @@ module.exports = {
     },
     proxy: {
       // 匹配代理的url
-      '/api': {
+      '/rateweb': {
         // 目标服务器地址
         target: 'http://192.168.1.189:8080',
-        // 路径重写
-        pathRewrite: {
-          '^/api': '/'
-        },
         changeOrigin: true
       }
     }

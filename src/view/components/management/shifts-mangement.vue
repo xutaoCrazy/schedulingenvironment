@@ -1,7 +1,7 @@
 <template>
   <div class="mangement">
     <Layout>
-      <Header>
+      <Header style="background:#f9f9f9">
         <Row :gutter="16">
           <Col span="17">
             <Form :label-width="60">
@@ -55,9 +55,21 @@
             </Form>
           </Col>
           <Col span="7" style="text-align:right" class="buttongroup">
-            <Button type="primary" @click="batchdeletion=true">批量删除</Button>
-            <Button type="primary" @click="batchschedu=true">批量排班</Button>
-            <Button type="primary" @click="duplicatescheduling=true">复制排班</Button>
+            <Button
+              type="primary"
+              @click="batchdeletion=true"
+              v-show="btnCode.indexOf('plsc') !=-1?true:false"
+            >批量删除</Button>
+            <Button
+              type="primary"
+              @click="batchschedu=true"
+              v-show="btnCode.indexOf('plpb') !=-1?true:false"
+            >批量排班</Button>
+            <Button
+              type="primary"
+              @click="duplicatescheduling=true"
+              v-show="btnCode.indexOf('fzpb') !=-1?true:false"
+            >复制排班</Button>
           </Col>
         </Row>
       </Header>
@@ -657,6 +669,7 @@ import {
 } from "@/common/resetFields"; //清空
 import { scheduShow } from "@/common/schedulmode"; //弹窗
 import { tabWeek, shiftDeletion } from "@/common/week"; //时间
+import { mapState, mapMutations } from "vuex";
 import {
   singleShiftsCheduling,
   batchSchedulingPreservation,
@@ -832,6 +845,9 @@ export default {
       tableType: 0
     };
   },
+  computed: {
+    ...mapState(["btnCode"])
+  },
   methods: {
     handleCheckAll() {
       //CheckBox 全选反选
@@ -862,6 +878,7 @@ export default {
       this.timeClear(true);
     },
     init() {
+      debugger;
       selectDoctor(this);
       let $json = calculatingDate(1, "", this);
       this.columns1 = this.columns1.concat($json);
@@ -910,7 +927,7 @@ export default {
     },
     selectDepartment(flag, $bck01) {
       // 选择科室、职务回填人员
-      promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
+      promiseShifts("/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
         id: this.Department,
         aaa01: this.docter
       }).then(res => {
@@ -924,7 +941,7 @@ export default {
     },
     selectionScheduling(val) {
       // 批量排班多选
-      promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
+      promiseShifts("/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
         id: this.batchDat[0].bck01,
         aaa01: this.batchDat[0].aaa01
       }).then(res => {
@@ -940,7 +957,7 @@ export default {
           }
         }
       });
-      promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+      promiseShifts("/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
         if (res.status === 200) {
@@ -950,7 +967,7 @@ export default {
     },
     delScheduling(val) {
       // 批量删除排班多选
-      promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
+      promiseShifts("/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
         id: this.delbatchDat.bck01,
         aaa01: this.delbatchDat.aaa01
       }).then(res => {
@@ -966,7 +983,7 @@ export default {
           }
         }
       });
-      promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+      promiseShifts("/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
         if (res.status === 200) {
@@ -977,7 +994,7 @@ export default {
 
     dupScheduling(val) {
       // 复制排班多选
-      promiseShifts("/api/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
+      promiseShifts("/rateweb/cloud/SysSchedule/getPersonnelList", "get", {
         id: this.dupbatchDat.bck01,
         aaa01: this.dupbatchDat.aaa01
       }).then(res => {
@@ -993,7 +1010,7 @@ export default {
           }
         }
       });
-      promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+      promiseShifts("/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
         if (res.status === 200) {
@@ -1048,7 +1065,6 @@ export default {
           this.newTargetKeysArr3.push(item.key + "-" + item.label);
         }
       });
-      console.log(this.newTargetKeysArr3);
     },
     getMoreParams(item, index) {
       debugger;
@@ -1063,7 +1079,7 @@ export default {
     },
     selectBck01(val, selcted) {
       // 选择科室 回填诊室
-      promiseShifts("/api/rateweb/cloud/SysSchedule/getOffice", "get", {
+      promiseShifts("/rateweb/cloud/SysSchedule/getOffice", "get", {
         id: val
       }).then(res => {
         if (res.status === 200) {
@@ -1152,7 +1168,6 @@ export default {
       getpersonnelPageList(this);
     },
     removeWork(zaa01, e) {
-      console.log(zaa01);
       var evt = e || window.event;
       evt.stopPropagation(); //阻止自身冒泡事件
       singleDeletion(this, zaa01);
@@ -1160,6 +1175,7 @@ export default {
   },
   mounted() {
     this.init();
+    console.log(this.btnCode);
   }
 };
 </script>

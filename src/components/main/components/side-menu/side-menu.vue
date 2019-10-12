@@ -160,7 +160,6 @@ export default {
       this.openedNames,
       this.getOpenedNamesByActiveName(name)
     );
-    console.log(this.menuList);
   }
 };
 </script>
