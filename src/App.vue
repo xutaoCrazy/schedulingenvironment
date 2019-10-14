@@ -9,6 +9,9 @@ export default {
   name: "App",
   created() {
     this.$store.dispatch("bb");
+  },
+  mounted: function() {
+    this.$router.push("/"); //回到根路由
   }
 };
 </script>

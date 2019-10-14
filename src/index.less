@@ -4,7 +4,17 @@
 @menu-dark-active-bg: #056caf;
 @layout-sider-background: #0369ab;
 
-::-webkit-scrollbar-thumb {
+
+
+.ivu-table-tip::-webkit-scrollbar-track-piece,
+form::-webkit-scrollbar-track-piece,
+.ivu-select-dropdown::-webkit-scrollbar-track-piece {
+  background: transparent !important;
+}
+
+.ivu-table-tip::-webkit-scrollbar-thumb,
+form::-webkit-scrollbar-thumb,
+.ivu-select-dropdown::-webkit-scrollbar-thumb {
   background-color: #ccc !important;
   background-clip: padding-box !important;
   border: solid transparent !important;
@@ -13,14 +23,29 @@
   border-radius: 15px !important;
 }
 
-::-webkit-scrollbar-track {
+.ivu-table-tip::-webkit-scrollbar-track,
+form::-webkit-scrollbar-track,
+.ivu-select-dropdown::-webkit-scrollbar-track {
   background-clip: padding-box !important;
   border: solid transparent !important;
   border-width: 0 0 0 4px !important;
 }
 
-::-webkit-scrollbar-track-piece {
+.ivu-table-tip::-webkit-scrollbar-track-piece,
+form::-webkit-scrollbar-track-piece,
+.ivu-select-dropdown::-webkit-scrollbar-track-piece {
   background: transparent !important;
+}
+
+.ivu-table-tip::-webkit-scrollbar {
+  width: 8px;
+  height: 16px;
+}
+
+form::-webkit-scrollbar,
+.ivu-select-dropdown::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
 }
 
 .ivu-modal-body {

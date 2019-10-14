@@ -191,7 +191,7 @@
               </i-Col>
               <i-Col span="12">
                 <FormItem label="诊室">
-                  <Select v-model="shiftformdata[tab-1].bas02" clearable>
+                  <Select v-model="shiftformdata[tab-1].bas02" clearable :transfer="true">
                     <Option
                       v-for="item in bas02List"
                       :value="item.bas02"
@@ -204,7 +204,7 @@
             <Row>
               <Col span="12">
                 <FormItem label="号别">
-                  <Select v-model="shiftformdata[tab-1].bcb01" clearable>
+                  <Select v-model="shiftformdata[tab-1].bcb01" clearable :transfer="true">
                     <Option
                       v-for="item in bcb01List"
                       :value="item.bcb01"
@@ -223,7 +223,7 @@
             <Row>
               <Col span="12">
                 <FormItem label="是否启用">
-                  <Select v-model="shiftformdata[tab-1].zaa13">
+                  <Select v-model="shiftformdata[tab-1].zaa13" :transfer="true">
                     <Option
                       v-for="item in zaa13List"
                       :value="item.value"
@@ -234,7 +234,7 @@
               </Col>
               <Col span="12">
                 <FormItem label="是否关闭微信" clearable>
-                  <Select v-model="shiftformdata[tab-1].wxenabled">
+                  <Select v-model="shiftformdata[tab-1].wxenabled" :transfer="true">
                     <Option
                       v-for="item in wxenabledList"
                       :value="item.value"
@@ -417,7 +417,7 @@
         <Row>
           <i-Col span="12">
             <FormItem label="是否启用">
-              <Select v-model="batchDat[0].zaa13">
+              <Select v-model="batchDat[0].zaa13" :transfer="true">
                 <Option
                   v-for="item in zaa13List"
                   :value="item.value"
@@ -428,7 +428,7 @@
           </i-Col>
           <i-Col span="12">
             <FormItem label="是否关闭微信">
-              <Select v-model="batchDat[0].wxenabled">
+              <Select v-model="batchDat[0].wxenabled" :transfer="true">
                 <Option
                   v-for="item in wxenabledList"
                   :value="item.value"
@@ -678,7 +678,7 @@ import {
   singleDeletion,
   copySaveAjax
 } from "@/common/save"; //保存
-
+import { checkPermission } from "@/api/jsonp"; //jsonp
 export default {
   data() {
     return {
@@ -846,9 +846,10 @@ export default {
     };
   },
   computed: {
-    ...mapState(["btnCode"])
+    ...mapState(["btnCode", "centerurl", "userId", "loginName", "jsessionids"])
   },
   methods: {
+    ...mapMutations(["btnCodes"]),
     handleCheckAll() {
       //CheckBox 全选反选
       debugger;
@@ -880,6 +881,7 @@ export default {
     init() {
       debugger;
       selectDoctor(this);
+      this.permission(); //查权限
       let $json = calculatingDate(1, "", this);
       this.columns1 = this.columns1.concat($json);
       this.handleTab(0);
@@ -1171,13 +1173,33 @@ export default {
       var evt = e || window.event;
       evt.stopPropagation(); //阻止自身冒泡事件
       singleDeletion(this, zaa01);
+    },
+    permission() {
+      checkPermission(
+        this.centerurl,
+        {
+          userId: this.userId,
+          loginCode: this.loginName,
+          modId: 2260,
+          jsessionids: this.jsessionids
+        },
+        "initCloudUser"
+      ).then(resp => {
+        let btnCode = [];
+        for (let i = 0; i < resp.length; i++) {
+          btnCode.push(resp[i].btnCode);
+        }
+        this.btnCodes(btnCode);
+      });
     }
   },
   mounted() {
     this.init();
-    console.log(this.btnCode);
   }
 };
 </script>
 <style lang="scss" scoped>
 </style>
+
+
+

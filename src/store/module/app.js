@@ -17,9 +17,13 @@ import {
 import router from '@/router'
 import routers from '@/router/routers'
 import config from '@/config'
+
 import {
   axiosFunc
 } from "@/api/data";
+import {
+  checkPermission
+} from "@/api/jsonp"; //jsonp
 const {
   homeName
 } = config
@@ -158,94 +162,39 @@ export default {
           window.location.href = res.data.split("'")[1];
         }
       });
-
-      const getMainLeftData = () => {
-        let p = new Promise((resolve, reject) => {
-          $.ajax({
-            type: "GET",
-            url: rootState.centerurl + "/cloud/sysUser/getCloudOMenuByUserId",
-            data: {
-              'language': 'zh-CN',
-              'userId': rootState.userId,
-              'loginCode': rootState.loginName,
-              'sysModId': 2254,
-              'jsessionids': rootState.jsessionids
-            },
-            dataType: "jsonp",
-            crossDomain: true,
-            jsonp: "callback",
-            jsonpCallback: "success_jsonp",
-            success: function (data) {
-              debugger;
-              let parms = [];
-              for (let i = 0; i < data.length; i++) {
-                parms.push(data[i].attributes.codeOmit)
-              }
-              resolve(parms)
-            }
-          });
-        })
-        return p
-      };
       const getMainLeftBottomData = () => {
-        getMainLeftData().then((res) => {
-          $.ajax({
-            type: "GET",
-            url: rootState.centerurl + "/cloud/sysUser/getCloudSMenuByUserId",
-            data: {
-              'language': 'zh-CN',
-              'userId': rootState.userId,
-              'loginCode': rootState.loginName,
-              'sysModId': 2254,
-              'sysModSId': '2255',
-              'jsessionids': rootState.jsessionids
-            },
-            dataType: "jsonp",
-            crossDomain: true,
-            jsonp: "callback",
-            jsonpCallback: "success_jsonp",
-            success: function (data) {
-              debugger;
-              let parms = [];
-              for (let i = 0; i < data.length; i++) {
-                parms.push(data[i].attributes.code)
-              }
-              parms = parms.concat(res);
-              routerJson(parms)
-              commit('setMenuLists', getMenuByRouter(routers, rootState.access))
-            }
-          });
-        }).then((res) => {
-          checkPermission()
-        })
-
-      };
-      const checkPermission = () => {
-        $.ajax({
-          type: "GET",
-          url: rootState.centerurl + "/cloud/sysUser/initCloudUser",
-          data: {
-            userId: rootState.userId,
-            loginCode: rootState.loginName,
-            modId: 2260,
-            jsessionids: rootState.jsessionids
+        console.log(rootState);
+        checkPermission(
+          rootState.centerurl, {
+            'language': 'zh-CN',
+            'userId': rootState.userId,
+            'loginCode': rootState.loginName,
+            'sysModId': 2254,
+            'jsessionids': rootState.jsessionids
           },
-          dataType: "jsonp",
-          crossDomain: true,
-          jsonp: "callback",
-          jsonpCallback: "success_jsonp",
-          success: function (resp) {
-            debugger;
-            if (resp) {
-              let btnCode = []
-              for (let i = 0; i < resp.length; i++) {
-                btnCode.push(resp[i].btnCode)
-              }
-              commit('btnCodes', btnCode)
-            }
+          "getCloudOMenuByUserId"
+        ).then((data) => {
+          let json = [];
+          for (let j = 0; j < data.length; j++) {
+            json.push(data[j].attributes.codeOmit)
           }
-        });
-
+          checkPermission(rootState.centerurl, {
+            'language': 'zh-CN',
+            'userId': rootState.userId,
+            'loginCode': rootState.loginName,
+            'sysModId': 2254,
+            'sysModSId': '2255',
+            'jsessionids': rootState.jsessionids
+          }, 'getCloudSMenuByUserId').then(data => {
+            let parms = [];
+            for (let i = 0; i < data.length; i++) {
+              parms.push(data[i].attributes.code)
+            }
+            parms = parms.concat(json);
+            routerJson(parms)
+            commit('setMenuLists', getMenuByRouter(routers, rootState.access))
+          })
+        })
       };
       const routerJson = (parms) => {
         debugger;
@@ -254,12 +203,7 @@ export default {
         parms.indexOf(routers[4].children[0].meta.code) != -1 ? routers[4].meta.hideInMenu = false : routers[4].meta.hideInMenu = true
         parms.indexOf(routers[2].children[0].meta.code) != -1 ? routers[2].children[0].meta.hideInMenu = false : routers[2].children[0].meta.hideInMenu = true
         parms.indexOf(routers[2].children[1].meta.code) != -1 ? routers[2].children[1].meta.hideInMenu = false : routers[2].children[1].meta.hideInMenu = true
-        console.log(routers[2])
-        console.log(routers[2].children[0])
-        console.log(routers[2].children[1])
-        console.log(parms)
         if (routers[2].children[0].meta.hideInMenu && routers[2].children[1].meta.hideInMenu) {
-          debugger;
           routers[2].meta.showAlways = false;
           routers[2].meta.hideInMenu = true;
         }
