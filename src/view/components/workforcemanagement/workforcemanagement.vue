@@ -1,12 +1,12 @@
 <template>
-  <div class='workmanagement'>
+  <div class="workmanagement">
     <Header style="height:45px!important;line-height:35px!important;text-align:right;width:800px">
       <Button type="primary" @click="open">
         <Icon type="md-add" />新增
       </Button>
     </Header>
     <Content>
-      <Table border :columns="columns1" :data="data1" class="tabel-padding" width="800"></Table>
+      <Table border :columns="columns1" :data="data1" class="tabel-padding" width="800" title="序号"></Table>
     </Content>
     <Modal v-model="modal1" :title="modalTiele" :fullscreen="closes" :loading="loading">
       <p slot="close">
@@ -73,9 +73,9 @@ export default {
     return {
       columns1: [
         {
-          title: "",
+          title: "序号",
           type: "index",
-          width: 60,
+          width: 80,
           align: "center"
         },
         {

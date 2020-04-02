@@ -69,10 +69,8 @@ export default {
           this.centerurl + "/cloud/sysUser/getUserCode?code=" + this.loginName,
         async: false,
         success: function(data) {
-          debugger;
           if (data) {
             if (data.result == "SUCCESS") {
-              debugger;
               if ($this.loginFilter != data.loginFilter) {
                 $this.$Modal.warning({
                   title: "提示",

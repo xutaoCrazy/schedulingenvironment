@@ -84,7 +84,85 @@ export const singleShiftsCheduling = (_this) => {
   });
 }
 
-export const batchSchedulingPreservation = (_this) => {
+export const batchSchedulingPreservation = (_this) => { //批量排班报错
+  debugger;
+  if (!_this.batchDat[0].bck01) {
+    _this.$Message.warning({
+      content: "科室不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDat[0].aaa01) {
+    _this.$Message.warning({
+      content: "职务不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDat[0].zaa05) {
+    _this.$Message.warning({
+      content: "班次不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDat[0].zaa07) {
+    _this.$Message.warning({
+      content: "开始时间不能我空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDat[0].zaa08) {
+    _this.$Message.warning({
+      content: "结束时间不能我空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDat[0].zaa11) {
+    _this.$Message.warning({
+      content: "限约数不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDat[0].zaa15) {
+    _this.$Message.warning({
+      content: "时间间隔不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDatbegindate) {
+    _this.$Message.warning({
+      content: "开始日期不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDatendDate) {
+    _this.$Message.warning({
+      content: "结束日期不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (_this.newTargetKeysArr.length == 0) {
+    _this.$Message.warning({
+      content: "人员不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.batchDat[0].bcb01) {
+    _this.$Message.warning({
+      content: "号别不能为空",
+      duration: 2
+    });
+    return
+  }
   _this.isBtnLoading = true;
   _this.loadingShow(_this, "保存中");
   promiseShifts(
@@ -123,7 +201,35 @@ export const batchSchedulingPreservation = (_this) => {
   });
 }
 
-export const deleteScheduling = (_this) => {
+export const deleteScheduling = (_this) => { //批量删除保存
+  if (!_this.delbatchDat.startDate) {
+    _this.$Message.warning({
+      content: "开始日期不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.delbatchDat.endDate) {
+    _this.$Message.warning({
+      content: "结束日期不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (!_this.delbatchDat.bck01) {
+    _this.$Message.warning({
+      content: "科室不能为空",
+      duration: 2
+    });
+    return
+  }
+  if (_this.delbatchDat.userIds.length == 0) {
+    _this.$Message.warning({
+      content: "人员不能为空",
+      duration: 2
+    });
+    return
+  }
   _this.isBtnLoading = true;
   debugger;
   if (_this.checkAllGroup.length == 7) {
@@ -145,6 +251,7 @@ export const deleteScheduling = (_this) => {
     _this.delbatchDat,
     true
   ).then(res => {
+    _this.isBtnLoading = false;
     if (res.status === 200 && res.data.result === "SUCCESS") {
       _this.$Message.success({
         content: res.data.resultMsg,
@@ -212,7 +319,7 @@ export const singleDeletion = (_this, zaa01) => {
   });
 }
 
-export const copySaveAjax = (_this) => {
+export const copySaveAjax = (_this) => { //复制排班
   debugger
   if (_this.dupbatchDat.bck01 === "") {
     _this.$Message.warning({
@@ -246,6 +353,13 @@ export const copySaveAjax = (_this) => {
   if (_this.delbatchDat.targetstarttime === '') {
     _this.$Message.warning({
       content: "目标开始日期不能为空",
+      duration: 2
+    });
+    return false;
+  }
+  if (_this.dupbatchDat.endDate > _this.dupbatchDat.startDate) {
+    _this.$Message.warning({
+      content: "复制结束日期不能大于复制开始日期",
       duration: 2
     });
     return false;

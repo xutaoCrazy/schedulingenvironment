@@ -77,11 +77,27 @@
         <Tabs :animated="false" @on-click="handleTab">
           <TabPane label="本周">
             <Table border :columns="columns1" :data="data1" disabled-hover :loading="tabelloading"></Table>
-            <Page :total="total" :page-size="5" :current="curr" show-total @on-change="changePage" />
+            <Page
+              :total="total"
+              :page-size="5"
+              :current="curr"
+              show-total
+              @on-change="changePage"
+              prev-text="上一页"
+              next-text="下一页"
+            />
           </TabPane>
           <TabPane label="下周">
             <Table border :columns="columns2" :data="data2" disabled-hover :loading="tabelloading"></Table>
-            <Page :total="total" :current="curr" :page-size="5" show-total @on-change="changePage" />
+            <Page
+              :total="total"
+              :current="curr"
+              :page-size="5"
+              show-total
+              @on-change="changePage"
+              prev-text="上一页"
+              next-text="下一页"
+            />
           </TabPane>
           <TabPane label="本月">
             <Table
@@ -92,7 +108,15 @@
               ref="table"
               :loading="tabelloading"
             ></Table>
-            <Page :total="total" :current="curr" :page-size="5" show-total @on-change="changePage" />
+            <Page
+              :total="total"
+              :current="curr"
+              :page-size="5"
+              show-total
+              @on-change="changePage"
+              prev-text="上一页"
+              next-text="下一页"
+            />
           </TabPane>
           <TabPane label="7天内">
             <Table
@@ -103,7 +127,14 @@
               ref="table"
               :loading="tabelloading"
             ></Table>
-            <Page :total="total" :page-size="5" show-total @on-change="changePage" />
+            <Page
+              :total="total"
+              :page-size="5"
+              show-total
+              @on-change="changePage"
+              prev-text="上一页"
+              next-text="下一页"
+            />
           </TabPane>
           <TabPane label="14天内">
             <Table
@@ -114,7 +145,15 @@
               ref="table"
               :loading="tabelloading"
             ></Table>
-            <Page :total="total" :current="curr" :page-size="5" show-total @on-change="changePage" />
+            <Page
+              :total="total"
+              :current="curr"
+              :page-size="5"
+              show-total
+              @on-change="changePage"
+              prev-text="上一页"
+              next-text="下一页"
+            />
           </TabPane>
           <TabPane label="30天内">
             <Table
@@ -125,7 +164,15 @@
               ref="table"
               :loading="tabelloading"
             ></Table>
-            <Page :total="total" :current="curr" :page-size="5" show-total @on-change="changePage" />
+            <Page
+              :total="total"
+              :current="curr"
+              :page-size="5"
+              show-total
+              @on-change="changePage"
+              prev-text="上一页"
+              next-text="下一页"
+            />
           </TabPane>
         </Tabs>
       </Content>
@@ -134,11 +181,12 @@
       <Tabs @on-click="tabTriggerEvent" v-model="tabName">
         <TabPane v-for="tab in tabs" :key="tab" :label="'班次配置' + tab" :name="'name'+tab">
           <Form :label-width="100" style="padding-right:30px" ref="formValidate">
-            <FormItem label="班次" :prop="shiftformdata[tab-1].zaa05">
+            <FormItem label="班次" :prop="shiftformdata[tab-1].zaa05" class="demo">
               <Select
                 :label-in-value="true"
                 v-model="shiftformdata[tab-1].zaa05"
                 :clearable="false"
+                filterable
               >
                 <Option
                   v-for="item in zaa05List"
@@ -179,8 +227,13 @@
 
             <Row>
               <i-Col span="12">
-                <FormItem label="科室">
-                  <Select v-model="shiftformdata[tab-1].bck01" @on-change="selectBck01" clearable>
+                <FormItem label="科室" class="demo">
+                  <Select
+                    v-model="shiftformdata[tab-1].bck01"
+                    @on-change="selectBck01"
+                    clearable
+                    filterable
+                  >
                     <Option
                       v-for="item in DepartmentList"
                       :value="item.bck01"
@@ -191,7 +244,12 @@
               </i-Col>
               <i-Col span="12">
                 <FormItem label="诊室">
-                  <Select v-model="shiftformdata[tab-1].bas02" clearable :transfer="true">
+                  <Select
+                    v-model="shiftformdata[tab-1].bas02"
+                    clearable
+                    :transfer="true"
+                    filterable
+                  >
                     <Option
                       v-for="item in bas02List"
                       :value="item.bas02"
@@ -203,8 +261,13 @@
             </Row>
             <Row>
               <Col span="12">
-                <FormItem label="号别">
-                  <Select v-model="shiftformdata[tab-1].bcb01" clearable :transfer="true">
+                <FormItem label="号别" class="demo">
+                  <Select
+                    v-model="shiftformdata[tab-1].bcb01"
+                    clearable
+                    :transfer="true"
+                    filterable
+                  >
                     <Option
                       v-for="item in bcb01List"
                       :value="item.bcb01"
@@ -214,8 +277,13 @@
                 </FormItem>
               </Col>
               <Col span="12">
-                <FormItem label="时间间隔">
-                  <InputNumber clearable v-model="shiftformdata[tab-1].zaa15" style="width:100%" />
+                <FormItem label="时间间隔" class="demo">
+                  <InputNumber
+                    clearable
+                    v-model="shiftformdata[tab-1].zaa15"
+                    style="width:100%"
+                    :min="0"
+                  />
                 </FormItem>
               </Col>
             </Row>
@@ -223,7 +291,7 @@
             <Row>
               <Col span="12">
                 <FormItem label="是否启用">
-                  <Select v-model="shiftformdata[tab-1].zaa13" :transfer="true">
+                  <Select v-model="shiftformdata[tab-1].zaa13" :transfer="true" filterable>
                     <Option
                       v-for="item in zaa13List"
                       :value="item.value"
@@ -234,7 +302,7 @@
               </Col>
               <Col span="12">
                 <FormItem label="是否关闭微信" clearable>
-                  <Select v-model="shiftformdata[tab-1].wxenabled" :transfer="true">
+                  <Select v-model="shiftformdata[tab-1].wxenabled" :transfer="true" filterable>
                     <Option
                       v-for="item in wxenabledList"
                       :value="item.value"
@@ -246,8 +314,13 @@
             </Row>
             <Row>
               <Col span="12">
-                <FormItem label="限约数">
-                  <InputNumber clearable v-model="shiftformdata[tab-1].zaa11" style="width:100%" />
+                <FormItem label="限约数" class="demo">
+                  <InputNumber
+                    clearable
+                    v-model="shiftformdata[tab-1].zaa11"
+                    style="width:100%"
+                    :min="0"
+                  />
                 </FormItem>
               </Col>
               <Col span="12">
@@ -265,28 +338,40 @@
         <Button style="margin-left: 8px" @click="cancel">取消</Button>
       </div>
     </Modal>
-    <Modal title="批量排班" v-model="batchschedu" width="650" style :mask-closable="false">
+    <Modal
+      title="批量排班"
+      v-model="batchschedu"
+      width="650"
+      style
+      :mask-closable="false"
+      :rules="ruleValidate"
+    >
       <Form
-        :label-width="100"
-        style="padding-right:30px;overflow:auto;height:400px"
+        :label-width="110"
+        style="padding-right:30px;overflow:auto;height:450px"
         ref="batchDat[0]"
         :model="batchDat[0]"
-        :rules="ruleValidate"
       >
         <Row>
           <i-Col span="12">
-            <FormItem label="科室" prop="bck01">
-              <Select clearable @on-change="selectionScheduling" v-model="batchDat[0].bck01">
+            <FormItem label="科室" prop="bck01" class="demo">
+              <Select
+                clearable
+                @on-change="selectionScheduling"
+                v-model="batchDat[0].bck01"
+                filterable
+              >
                 <Option
                   v-for="item in DepartmentList"
                   :value="item.bck01"
                   :key="item.bck01"
+                  prop="bck01"
                 >{{ item.bck03 }}</Option>
               </Select>
             </FormItem>
           </i-Col>
           <i-Col span="12">
-            <FormItem label="职务">
+            <FormItem label="职务" class="demo">
               <Select
                 filterable
                 clearable
@@ -304,8 +389,8 @@
         </Row>
         <Row>
           <i-Col span="12">
-            <FormItem label="班次">
-              <Select :label-in-value="true" clearable v-model="batchDat[0].zaa05">
+            <FormItem label="班次" class="demo">
+              <Select :label-in-value="true" clearable v-model="batchDat[0].zaa05" filterable>
                 <Option
                   v-for="item in zaa05List"
                   :value="item.bco02"
@@ -318,8 +403,8 @@
             </FormItem>
           </i-Col>
           <i-Col span="12">
-            <FormItem label="号别">
-              <Select clearable v-model="batchDat[0].bcb01">
+            <FormItem label="号别" class="demo">
+              <Select clearable v-model="batchDat[0].bcb01" filterable>
                 <Option
                   v-for="item in bcb01List"
                   :value="item.bcb01"
@@ -331,7 +416,7 @@
         </Row>
         <Row>
           <Col span="12">
-            <FormItem label="开始时间">
+            <FormItem label="开始时间" class="demo">
               <TimePicker
                 type="time"
                 placeholder="开始时间"
@@ -341,7 +426,7 @@
             </FormItem>
           </Col>
           <Col span="12">
-            <FormItem label="结束时间">
+            <FormItem label="结束时间" class="demo">
               <TimePicker
                 type="time"
                 placeholder="结束时间"
@@ -354,8 +439,8 @@
 
         <Row>
           <i-Col span="12">
-            <FormItem label="是否生成号源">
-              <Select v-model="isSource">
+            <FormItem label="是否生成号源" class="demo">
+              <Select v-model="isSource" filterable>
                 <Option
                   v-for="item in isSourceArr"
                   :key="item.value"
@@ -366,15 +451,15 @@
             </FormItem>
           </i-Col>
           <i-Col span="12">
-            <FormItem label="限约数">
-              <InputNumber clearable v-model="batchDat[0].zaa11" style="width:100%" />
+            <FormItem label="限约数" class="demo">
+              <InputNumber clearable v-model="batchDat[0].zaa11" style="width:100%" :min="0" />
             </FormItem>
           </i-Col>
         </Row>
         <Row>
           <i-Col span="12">
             <FormItem label="诊室">
-              <Select clearable v-model="batchDat[0].bas01">
+              <Select clearable v-model="batchDat[0].bas01" filterable>
                 <Option
                   v-for="item in bas02List"
                   :value="item.bas01"
@@ -384,14 +469,14 @@
             </FormItem>
           </i-Col>
           <i-Col span="12">
-            <FormItem label="时间间隔">
-              <InputNumber clearable v-model="batchDat[0].zaa15" style="width:100%" />
+            <FormItem label="时间间隔" class="demo">
+              <InputNumber clearable v-model="batchDat[0].zaa15" style="width:100%" :min="0" />
             </FormItem>
           </i-Col>
         </Row>
         <Row>
           <Col span="12">
-            <FormItem label="开始日期">
+            <FormItem label="开始日期" class="demo">
               <DatePicker
                 type="date"
                 placeholder="开始日期"
@@ -402,7 +487,7 @@
             </FormItem>
           </Col>
           <Col span="12">
-            <FormItem label="结束日期">
+            <FormItem label="结束日期" class="demo">
               <DatePicker
                 type="date"
                 placeholder="结束日期"
@@ -417,7 +502,7 @@
         <Row>
           <i-Col span="12">
             <FormItem label="是否启用">
-              <Select v-model="batchDat[0].zaa13" :transfer="true">
+              <Select v-model="batchDat[0].zaa13" :transfer="true" filterable>
                 <Option
                   v-for="item in zaa13List"
                   :value="item.value"
@@ -428,7 +513,7 @@
           </i-Col>
           <i-Col span="12">
             <FormItem label="是否关闭微信">
-              <Select v-model="batchDat[0].wxenabled" :transfer="true">
+              <Select v-model="batchDat[0].wxenabled" :transfer="true" filterable>
                 <Option
                   v-for="item in wxenabledList"
                   :value="item.value"
@@ -441,7 +526,7 @@
         <FormItem label="备注">
           <Input clearable v-model="batchDat[0].zaa09" />
         </FormItem>
-        <FormItem label="人员">
+        <FormItem label="人员" class="demo">
           <Transfer
             :data="mockData"
             :target-keys="targetKeys1"
@@ -456,11 +541,18 @@
         <Button style="margin-left: 8px" @click="batchClear">取消</Button>
       </div>
     </Modal>
-    <Modal title="批量删除" v-model="batchdeletion" width="650" style :mask-closable="false">
+    <Modal
+      title="批量删除"
+      v-model="batchdeletion"
+      width="650"
+      style
+      :mask-closable="false"
+      @on-cancel="delclear"
+    >
       <Form :label-width="100" style="padding-right:30px;overflow:auto;height:480px" ref>
         <Row>
           <Col span="12">
-            <FormItem label="开始日期">
+            <FormItem label="开始日期" class="demo">
               <DatePicker
                 type="date"
                 placeholder="开始日期"
@@ -470,7 +562,7 @@
             </FormItem>
           </Col>
           <Col span="12">
-            <FormItem label="结束日期">
+            <FormItem label="结束日期" class="demo">
               <DatePicker
                 type="date"
                 placeholder="结束日期"
@@ -502,8 +594,8 @@
         </Row>
         <Row>
           <Col span="24">
-            <FormItem label="科室">
-              <Select clearable @on-change="delScheduling" v-model="delbatchDat.bck01">
+            <FormItem label="科室" class="demo">
+              <Select clearable @on-change="delScheduling" v-model="delbatchDat.bck01" filterable>
                 <Option
                   v-for="item in DepartmentList"
                   :value="item.bck01"
@@ -526,7 +618,7 @@
             </FormItem>
           </Col>
         </Row>
-        <FormItem label="人员">
+        <FormItem label="人员" class="demo">
           <Transfer
             :data="delmockData"
             :target-keys="targetKeys2"
@@ -542,12 +634,19 @@
       </div>
     </Modal>
 
-    <Modal title="复制排班" v-model="duplicatescheduling" width="650" style :mask-closable="false">
-      <Form :label-width="100" style="padding-right:30px;overflow:auto;height:530px" ref>
+    <Modal
+      title="复制排班"
+      v-model="duplicatescheduling"
+      width="650"
+      style
+      :mask-closable="false"
+      @on-cancel="closeModal"
+    >
+      <Form :label-width="110" style="padding-right:30px;overflow:auto;height:530px" ref>
         <Row>
           <Col span="24">
-            <FormItem label="科室">
-              <Select clearable @on-change="dupScheduling" v-model="dupbatchDat.bck01">
+            <FormItem label="科室" class="demo">
+              <Select clearable @on-change="dupScheduling" v-model="dupbatchDat.bck01" filterable>
                 <Option
                   v-for="item in DepartmentList"
                   :value="item.bck01"
@@ -570,7 +669,7 @@
             </FormItem>
           </Col>
         </Row>
-        <FormItem label="人员">
+        <FormItem label="人员" class="demo">
           <Transfer
             :data="dupmockData"
             :target-keys="targetKeys3"
@@ -592,28 +691,26 @@
         </Row>
         <Row>
           <Col span="12">
-            <FormItem label="复制开始日期">
+            <FormItem label="复制开始日期" class="demo">
               <DatePicker
                 type="date"
                 placeholder="复制开始日期"
                 v-model="dupbatchDat.startDate"
                 format="yyyy-MM-dd"
                 :transfer="true"
-                :options="optionsBegindate"
                 @on-change="timeStartModification"
                 @on-clear="timeClear"
               ></DatePicker>
             </FormItem>
           </Col>
           <Col span="12">
-            <FormItem label="复制结束日期">
+            <FormItem label="复制结束日期" class="demo">
               <DatePicker
                 type="date"
                 placeholder="复制结束日期"
                 v-model="dupbatchDat.endDate"
                 format="yyyy-MM-dd"
                 :transfer="true"
-                :options="optionsdendDate"
                 @on-change="timeStartModification"
                 @on-clear="timeClear"
               ></DatePicker>
@@ -622,7 +719,7 @@
         </Row>
         <Row>
           <Col span="12">
-            <FormItem label="目标开始日期">
+            <FormItem label="目标开始日期" class="demo">
               <DatePicker
                 type="date"
                 placeholder="目标开始日期"
@@ -647,7 +744,7 @@
       </Form>
       <div slot="footer">
         <Button type="primary" @click="copySvae" :loading="isBtnLoading">保存</Button>
-        <Button style="margin-left: 8px" @click="duplicatescheduling=false">取消</Button>
+        <Button style="margin-left: 8px" @click="closeModal">取消</Button>
       </div>
     </Modal>
   </div>
@@ -719,7 +816,10 @@ export default {
       batchschedu: false,
       batchdeletion: false, //批量删除
       isSource: 5,
-      isSourceArr: [{ label: "是", value: 5 }, { label: "否", value: 6 }],
+      isSourceArr: [
+        { label: "是", value: 5 },
+        { label: "否", value: 6 }
+      ],
       duplicatescheduling: false, //复制排班
       tabs: 1,
       personnelList: "",
@@ -821,12 +921,8 @@ export default {
       optionsdendDate: {
         //复制结束时间
         disabledDate: date => {
-          let startTimes = this.dupbatchDat.startDate
-            ? new Date(this.dupbatchDat.startDate).valueOf() +
-              24 * 60 * 60 * 1000
-            : Date.now();
-
-          return date && date.valueOf() < startTimes;
+          debugger;
+          return date && date.valueOf() < Date.now() - 86400000;
         }
       },
       optionsMubiaoBegindate: {
@@ -850,6 +946,16 @@ export default {
   },
   methods: {
     ...mapMutations(["btnCodes"]),
+    closeModal() {
+      debugger;
+      //复制排班取消清空
+      this.duplicatescheduling = false;
+      Object.keys(this.dupbatchDat).forEach(
+        key => (this.dupbatchDat[key] = "")
+      );
+      this.newTargetKeysArr3 = [];
+      this.dupmockData = [];
+    },
     handleCheckAll() {
       //CheckBox 全选反选
       debugger;
@@ -902,6 +1008,7 @@ export default {
       getpersonnelPageList(this);
     },
     handleTabsAdd() {
+      debugger;
       // 点击新增tabs 动态添加保存数据
       if (this.zaa05List.length <= this.tabs) {
         return false;
@@ -924,8 +1031,8 @@ export default {
         bce03: this.bce03Name,
         bck01: this.Department
       });
-
       this.tabs++;
+      this.tabName = "name" + this.tabs;
     },
     selectDepartment(flag, $bck01) {
       // 选择科室、职务回填人员
@@ -1198,7 +1305,16 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
+<style  scoped>
+.demo .ivu-form-item-label:before {
+  content: "*" !important;
+  display: inline-block !important;
+  margin-right: 4px !important;
+  line-height: 1 !important;
+  font-family: SimSun !important;
+  font-size: 12px !important;
+  color: #f30 !important;
+}
 </style>
 
 

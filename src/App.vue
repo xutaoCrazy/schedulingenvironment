@@ -11,7 +11,7 @@ export default {
     this.$store.dispatch("bb");
   },
   mounted: function() {
-    this.$router.push("/"); //回到根路由
+    this.$router.push("/home"); //回到根路由
   }
 };
 </script>

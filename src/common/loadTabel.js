@@ -22,6 +22,7 @@ export const tableInit = (_this) => {
   ).then(res => {
     _this.tabelloading = false;
     if (res.status === 200) {
+
       switch (_this.tabindex) {
         case 1:
           _this.data1 = res.data.list;
@@ -78,6 +79,8 @@ export const getpersonnelPageList = (_this) => {
         _this.bce01Arr.push(res.data.rows[i].bce01);
       }
       tableInit(_this);
+    } else {
+      _this.total = 0
     }
   });
 }
